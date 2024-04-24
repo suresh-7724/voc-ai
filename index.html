@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON File Upload</title>
+
+    <style>
+        /* Common styles */
+        body {
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        .file-upload {
+            display: inline-block;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .text-container {
+            margin-top: 20px;
+        }
+
+        .original {
+            background-color: #c7e0ff;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-right: 3px;
+        }
+
+        .translated {
+            color: black;
+            font-style: italic;
+        }
+
+        .word-link {
+            cursor: pointer;
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .word-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-container {
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        audio {
+            margin-bottom: 10px;
+        }
+
+        .rewind-section {
+            position: sticky;
+            top: 0;
+            background-color: #f0f0f0;
+            z-index: 1;
+            padding: 10px 0;
+        }
+
+        .rewind-icons button {
+            font-size: 18px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .tooltip {
+            display: none;
+            /* Initially hide the tooltip */
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            z-index: 9999;
+            max-width: 80%;
+            /* Set maximum width */
+            max-height: 80%;
+            /* Set maximum height */
+            overflow: auto;
+            /* Enable scrolling if needed */
+            font-size: 18px;
+            /* Increase font size */
+            line-height: 1.5;
+            /* Increase line height for better readability */
+            font-weight: bold;
+            /* Use bold text */
+            overflow-y: auto;
+            /* Allow vertical scrolling */
+        }
+
+        .close-btn {
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 34px;
+            /* Adjust size as needed */
+            color: #ff0000;
+            /* Red color */
+        }
+
+        .loader {
+            display: none;
+            border: 6px solid #f3f3f3;
+            /* Light grey border */
+            border-top: 6px solid #3498db;
+            /* Blue border on top */
+            border-radius: 50%;
+            width: 80px;
+            /* Increase the width */
+            height: 80px;
+            /* Increase the height */
+            animation: spin 2s linear infinite;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin-top: -25px;
+            /* Adjust margin to center vertically */
+            margin-left: -25px;
+            /* Adjust margin to center horizontally */
+            z-index: 9999;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive styles */
+        @media screen and (max-width: 600px) {
+
+            /* Media query for smaller screens */
+            .tooltip {
+                max-width: 90%;
+                /* Adjust maximum width for smaller screens */
+                max-height: 70%;
+                /* Adjust maximum height for smaller screens */
+                padding: 10px;
+                /* Adjust padding for smaller screens */
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .file-name {
+                overflow-wrap: break-word;
+                /* Wrap long file names */
+                max-width: calc(100% - 120px);
+                /* Limit the maximum width of the file name */
+                display: inline-block;
+                /* Ensure it behaves as a block element */
+                margin-left: 10px;
+                /* Add some margin for separation */
+                white-space: normal;
+                /* Allow wrapping */
+            }
+
+            .file-upload,
+            .btn {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="loader" id="loader"></div>
+        <div style="display: flex; align-items: center">
+            <input type="file" id="audio-input" style="display: none" accept=".mp3,.wav" />
+            <label for="audio-input" class="file-upload">Upload Audio File</label>
+            <span class="file-name" id="audio-file-name"></span>
+        </div>
+
+        <div style="margin-top: 10px">
+            <input type="file" id="file-input" style="display: none" accept=".json" />
+            <label for="file-input" class="file-upload">Upload JSON File</label>
+            <span class="file-name" id="file-name"></span>
+        </div>
+        <div class="btn-container">
+            <button class="btn" onclick="increaseTextSize()">
+                Increase Text Size
+            </button>
+            <button class="btn" onclick="decreaseTextSize()">
+                Decrease Text Size
+            </button>
+        </div>
+        <div class="rewind-section">
+            <audio controls id="audio-player"></audio>
+            <div class="rewind-icons">
+                <button onclick="rewindAudio(-3)">&#9664;&#9664; 3s</button>
+                <button onclick="rewindAudio(-5)">&#9664;&#9664; 5s</button>
+                <button onclick="rewindAudio(-10)">&#9664;&#9664; 10s</button>
+                <button onclick="togglePlayPause()" id="play-pause-btn">
+                    &#9658;
+                </button>
+            </div>
+        </div>
+        <h2>Translated Results</h2>
+        <div class="text-container" id="text-container">
+            <!-- Text content will be added here dynamically -->
+        </div>
+    </div>
+    <!-- <button>Show Popup</button> -->
+
+    <!-- this is the pop code  -->
+    <div class="cover" id="popup-text">
+        <div class="contents">
+            <h1 id="word-wrap"></h1>
+            <span class="close"> <!-- close icon svg image code -->
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 50 50">
+                    <path
+                        d="M 7.71875 6.28125 L 6.28125 7.71875 L 23.5625 25 L 6.28125 42.28125 L 7.71875 43.71875 L 25 26.4375 L 42.28125 43.71875 L 43.71875 42.28125 L 26.4375 25 L 43.71875 7.71875 L 42.28125 6.28125 L 25 23.5625 Z">
+                    </path>
+                </svg></span>
+
+            <div class="more-example">
+                <div class="content-details">
+                    <div class="head-text">Literal translation:</div>
+                    <div class="translate-text" id="literal_translate"></div>
+                </div>
+
+                <div class="content-details">
+                    <div class="head-text">Example:</div>
+                    <div class="spanish-text" id="example_translate"><strong id="example_translate_1">
+                        </strong> <span id="example_translate_2"></span></div>
+                </div>
+
+                <div  id="conjugation-div" class="content-details">
+                    <div class="head-text">
+                        Conjugations:
+                        <div class="" id="conjugations_wrap">
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-details">
+                    <div class="head-text">Word associations:</div>
+                    <ul id="word_assc_translate">
+                        <!-- <li>
+                            <p>Think of a presenter on TV presenting the news.</p>
+                        </li>
+                        <li>
+                            <p>Imagine yourself presenting a gift to someone.</p>
+                        </li>
+                        <li>
+                            <p>Associate the word with a presentation you have done in the past.</p>
+                        </li> -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        let audioResourceUrl="http://localhost/jake";
+        let foreignDir="FR";
+        let defaultDir="EN";
+        let currentAudioIndex=1;
+        let currentDir=defaultDir;
+        let textSize = 16; // Initial text size
+        let audioStopped = false;
+        let audioPlayer=document.getElementById("audio-player");
+
+        // load the audio player
+        $(document).ready(function(){
+            loadAudioPlayer();
+            audioPlayer.addEventListener("ended",function(){
+                if(currentDir==defaultDir){
+                    currentDir=foreignDir
+                }else if (currentDir==foreignDir){
+                    currentDir=defaultDir
+                    currentAudioIndex++;
+                }
+                loadAudioPlayer()
+                audioPlayer.play()
+            })
+        })
+
+        function loadAudioPlayer(){
+            let audioUrl=audioResourceUrl+"/"+currentDir+"/"+currentAudioIndex+".wav";
+            $("#audio-file-name").text(audioUrl);
+            audioPlayer.src=audioUrl;
+            
+        }
+
+        document
+            .getElementById("audio-input")
+            .addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    document.getElementById("audio-file-name").textContent = file.name;
+                    const audioPlayer = document.getElementById("audio-player");
+                    audioPlayer.src = URL.createObjectURL(file);
+                }
+            });
+
+        document
+            .getElementById("file-input")
+            .addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    document.getElementById("file-name").textContent = file.name;
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const content = e.target.result;
+                        try {
+                            const data = JSON.parse(content);
+                            processData(data);
+                        } catch (error) {
+                            console.error("Error parsing JSON:", error);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        function processData(data) {
+            let translations = [];
+
+            // Check if data is in the first format
+            if ("output" in data) {
+                translations = data.output.map((item) => ({
+                    Original: item.Original,
+                    Translated: item.Translated,
+                }));
+            }
+            // Check if data is in the second format
+            else if ("record" in data && "output" in data.record) {
+                translations = data.record.output.map((item) => ({
+                    Original: item.Original,
+                    Translated: item.Translated,
+                }));
+            }
+            // Unsupported JSON format
+            else {
+                console.error("Unsupported JSON format:", data);
+                return;
+            }
+
+            displayText(translations);
+        }
+
+        function displayText(output) {
+            console.log("Output:", output);
+            const container = document.getElementById("text-container");
+            container.innerHTML = "";
+            let isFirstOriginal = true;
+            output.forEach((item) => {
+                const originalText = item.Original;
+                const translatedText = item.Translated;
+
+                console.log("Original:", originalText);
+                console.log("Translated:", translatedText);
+
+                const originalParagraph = document.createElement("p");
+                const translatedParagraph = document.createElement("p");
+
+                const originalWords = originalText.split(" ");
+                const translatedWords = translatedText.split(" ");
+
+                originalWords.forEach((word) => {
+                    const span = document.createElement("span");
+                    span.textContent = word;
+                    span.classList.add("original", "word-link");
+                    span.addEventListener("click", handleWordSelection);
+
+                    originalParagraph.appendChild(span);
+                    originalParagraph.appendChild(document.createTextNode(" "));
+                });
+
+                if (!isFirstOriginal) {
+                    container.appendChild(document.createElement("br")); // Add line gap between translations
+                } else {
+                    isFirstOriginal = false;
+                }
+
+                translatedWords.forEach((word) => {
+                    const span = document.createElement("span");
+                    span.textContent = word;
+                    span.classList.add("translated", "word-link");
+                    span.addEventListener("click", handleWordSelection);
+                    translatedParagraph.appendChild(span);
+                    translatedParagraph.appendChild(document.createTextNode(" "));
+                });
+
+                container.appendChild(originalParagraph);
+                container.appendChild(translatedParagraph);
+            });
+        }
+
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const jsonUrl = urlParams.get("json");
+            // const audioUrl = urlParams.get("audio");
+            // const audioUrl = "http://localhost/jake/EN/Jake%20Peral_0-EN-1-120-500-V25-25.wav";
+
+            console.log("JSON URL:", jsonUrl);
+            // console.log("Audio URL:", audioUrl);
+
+            if (jsonUrl) {
+                document.getElementById("file-name").textContent = jsonUrl;
+                fetchAndDisplayJson(jsonUrl);
+            } else {
+                console.log("No JSON URL provided.");
+            }
+
+            // if (audioUrl) {
+            //     document.getElementById("audio-file-name").textContent = audioUrl;
+            //     document.getElementById("audio-player").src = audioUrl;
+            //     console.log("Audio URL provided:", audioUrl);
+            // } else {
+            //     console.log("No Audio URL provided.");
+            // }
+        };
+
+        function fetchAndDisplayJson(jsonUrl) {
+            console.log("Fetching JSON from:", jsonUrl);
+            fetch(jsonUrl)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    // Process the JSON data
+                    displayText(data.output);
+                })
+                .catch((error) => {
+                    console.error("Error loading JSON from URL:", error);
+                });
+        }
+
+        function openGoogleSearch(word) {
+            const searchUrl =
+                "https://www.google.com/search?q=" + encodeURIComponent(word);
+            window.open(searchUrl, "_blank");
+        }
+
+        function increaseTextSize() {
+            textSize += 2;
+            document.getElementById("text-container").style.fontSize =
+                document.getElementById("popup-text").style.fontSize =
+                textSize + "px";
+        }
+
+        function decreaseTextSize() {
+            if (textSize > 10) {
+                textSize -= 2;
+                document.getElementById("text-container").style.fontSize =
+                    document.getElementById("popup-text").style.fontSize =
+                    textSize + "px";
+            }
+        }
+
+        function rewindAudio(seconds) {
+            const audioPlayer = document.getElementById("audio-player");
+            audioPlayer.currentTime += seconds;
+        }
+        function togglePlayPause() {
+            const audioPlayer = document.getElementById("audio-player");
+            const playPauseBtn = document.getElementById("play-pause-btn");
+            if (audioPlayer.paused || audioPlayer.ended) {
+                audioPlayer.play();
+                playPauseBtn.innerHTML = "&#10074;&#10074;"; // Pause symbol
+                audioStopped = false;
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.innerHTML = "&#9658;"; // Play symbol
+                audioStopped = false;
+            }
+        }
+        // Function to handle double-click event on words
+        function handleWordSelection(event) {
+            const selectedWord = event.target.textContent.trim();
+
+            if (selectedWord) {
+                // Since getHoveredResult is async, use .then() to wait for the promise to resolve
+                getHoveredResult(selectedWord)
+                    .then((hoveredResult) => {
+
+
+                        showHoveredResult(event.clientX, event.clientY, hoveredResult);
+                    })
+                    .catch((error) => {
+                        console.error("Failed to get hovered result:", error);
+                        // Optionally, handle the error, e.g., by showing an error message to the user
+                    });
+            }
+        }
+        async function getHoveredResult(word) {
+            try {
+                const myHeaders = new Headers();
+                myHeaders.append("Content-Type", "application/json");
+
+                const raw = JSON.stringify({ word }); // Destructuring assignment for cleaner syntax
+
+                const requestOptions = {
+                    method: "POST",
+                    headers: myHeaders,
+                    body: raw,
+                    redirect: "follow",
+                };
+
+                const response = await fetch("https://voc-ai-server.onrender.com/translate", requestOptions);
+                const data = await response.json();
+
+                if (data.choices && data.choices.length > 0) {
+                    let content = data.choices[0].message.content;
+                    // Add newline character after each numbered line
+
+                    return content;
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        // async function getHoveredResult(selectedWord) {
+
+
+
+        //     const myHeaders = new Headers();
+        //     myHeaders.append("Content-Type", "application/json");
+        //     myHeaders.append("Accept", "application/json");
+        //     myHeaders.append(
+        //         "Authorization",
+        //         "Bearer sk-proj-ZEUmeKUDmZ8JSC5SEVb2T3BlbkFJDguqKfw6KmucFqzzIeOV"
+        //     );
+
+        //     const raw = JSON.stringify({
+        //         model: "gpt-3.5-turbo",
+        //         messages: [
+        //             {
+        //                 role: "user",
+        //                 content:
+        //                     "you are an expert linguist and tutor of languages. We want to help english speakers learn foriegn words. I'll provide a foriegn word, and context and you provide me with the following:\n1. Literal translation of that word. If the translation within the context is different than the literal translation then add that as well. No more than 50 charachters.\n2. example for using this word in a sentence. no more than 50 charachters.\n3. If the word is a verb, conjugations for all relevant aspects \n4. three suggestions how an English speaker should memorize that word using word associaltions. response json , use memorization_tips as a key only,Given Word: " +
+        //                     selectedWord,
+        //             },
+        //         ],
+        //         temperature: 1,
+        //         top_p: 1,
+        //         n: 1,
+        //         stream: false,
+        //         max_tokens: 250,
+        //         presence_penalty: 0,
+        //         frequency_penalty: 0,
+        //     });
+
+        //     const requestOptions = {
+        //         method: "POST",
+        //         headers: myHeaders,
+        //         body: raw,
+        //         redirect: "follow",
+        //     };
+
+        //     try {
+        //         const response = await fetch(
+        //             "https://api.openai.com/v1/chat/completions",
+        //             requestOptions
+        //         );
+        //         const data = await response.json();
+        //         if (data.choices && data.choices.length > 0) {
+        //             let content = data.choices[0].message.content;
+        //             // Add newline character after each numbered line
+
+        //             console.log(content); // Logging the modified content to the console
+        //             return content; // Return the modified content
+        //         } else {
+        //             // Handle the case where no choices are returned
+        //             console.log("No choices available in the response");
+        //             return "No response received.";
+        //         }
+        //     } catch (error) {
+        //         console.error(error);
+        //         return `Error: ${error}`; // Return error information for debugging
+        //     }
+        // }
+        // // Function to remove the tooltip
+        function removeTooltip() {
+            const tooltip = document.getElementById("tooltip");
+            if (tooltip) {
+                tooltip.parentNode.removeChild(tooltip);
+            }
+        }
+
+        function showHoveredResult(x, y, hoveredResult) {
+
+            if (window.scrollY < 150) {
+
+                window.scrollBy(0, 210);
+            }
+            // Clean up each part
+
+            // Remove the empty first element
+
+            // Output the separated parts
+            // parts.forEach((element, index) => {
+            //     parts[index].replace("Literal translation:", "")
+            //     parts[index].replace("Example:", "")
+            //     parts[index].replace("Conjugations: ", "")
+            //     parts[index].replace("Word associations:", "")
+            // });
+            let result = JSON.parse(hoveredResult)
+            console.log(result);
+
+            $("#literal_translate").html(result.literal_translation)
+            $("#example_translate").html(result.example_sentence)
+            let tipsHtml = "";
+            result.memorization_tips.forEach(function (tip) {
+                tipsHtml += '<li><p>' + tip + '</p></li>'
+            });
+
+
+
+            $("#word_assc_translate").html(tipsHtml)
+
+            let conjugationsHtml = "";
+            let i=0;
+            for (var person in result.conjugations) {
+                if (result.conjugations.hasOwnProperty(person)) {
+                    i++;
+                    conjugationsHtml += `<div class="spanish-text"><b> <span >${person}</span></b><span style="color:#000";  >${result.conjugations[person]}</span></div>`
+                }
+            }
+            if(i>0){
+                $("#conjugation-div").show()
+            }else{
+                $("#conjugation-div").hide()
+
+            }
+            $("#conjugations_wrap").html(conjugationsHtml)
+            $(".cover").fadeIn("300");
+            document.body.style.overflow = 'hidden';
+
+            $(".cover,.close").click(function () {
+                $(".cover").fadeOut("300");
+                document.body.style.overflow = 'auto';
+                const audioPlayer = document.getElementById("audio-player");
+                const wasAudioPaused = audioPlayer.paused;
+
+                // Remove the tooltip
+
+                // If the audio was paused before opening the tooltip, resume playing it
+                if (wasAudioPaused && audioStopped) {
+                    audioPlayer.play();
+                }
+            })
+            $(".contents").click(function (e) {
+                e.stopPropagation();
+            })
+
+
+            return;
+            // Remove the previous tooltip if it exists
+            // removeTooltip();
+
+            // // Create a new tooltip element
+            // const tooltip = document.createElement("div");
+            // tooltip.innerHTML = `<span class="close-btn" onclick="closeTooltip()">×</span>${hoveredResult.replace(
+            //     /\n/g,
+            //     "<br>"
+            // )}`;
+            // tooltip.classList.add("tooltip");
+            // tooltip.id = "tooltip"; // Set an id for easy access
+            // tooltip.classList.add("tooltip"); // Add tooltip class
+            // tooltip.style.position = "fixed";
+            // tooltip.style.top = y - tooltip.offsetHeight - 5 + "px";
+            // tooltip.style.left = x + "px";
+            // tooltip.style.width = "80%"; // Set width
+            // tooltip.style.height = "80vh"; // Set height (80% of viewport height)
+            // tooltip.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
+            // tooltip.style.padding = "5px";
+            // tooltip.style.border = "1px solid #ccc";
+            // tooltip.style.borderRadius = "5px";
+            // tooltip.style.zIndex = "9999";
+            // tooltip.style.maxHeight = "200px"; // Limit the maximum height
+            // tooltip.style.overflowY = "auto"; // Enable vertical scrolling
+
+            // // Append the tooltip to the body
+            // document.body.appendChild(tooltip);
+
+            // // Show the tooltip
+            // tooltip.style.display = "block";
+
+            // // Adjust the position of the tooltip to ensure it stays within the bounds of the .container div
+            // const tooltipWidth = tooltip.offsetWidth;
+            // const tooltipHeight = tooltip.offsetHeight;
+            // const containerRect = document
+            //     .querySelector(".container")
+            //     .getBoundingClientRect();
+            // const containerLeft = containerRect.left;
+            // const containerRight = containerRect.right;
+
+            // // Calculate the position of the tooltip relative to the clicked word
+            // let tooltipX = x - tooltipWidth / 2;
+            // let tooltipY = y - tooltipHeight / 2;
+
+            // // Ensure the tooltip stays within the boundaries of the .container div
+            // if (tooltipX < containerLeft) {
+            //     tooltipX = containerLeft;
+            // } else if (tooltipX + tooltipWidth > containerRight) {
+            //     tooltipX = containerRight - tooltipWidth;
+            // }
+
+            // // Set the tooltip position
+            // tooltip.style.left = `${tooltipX}px`;
+            // tooltip.style.top = `${tooltipY}px`;
+
+            // // Check if the tooltip content exceeds its height and add scrollbar if needed
+            // if (tooltip.scrollHeight > tooltip.clientHeight) {
+            //     tooltip.style.overflowY = "auto";
+            // }
+
+            // // Add event listener to remove the tooltip when clicking anywhere on the page
+            // document.addEventListener("click", removeTooltipOnClick);
+        }
+
+        function removeTooltipOnClick(event) {
+            const tooltip = document.getElementById("tooltip");
+            if (tooltip && event.target !== tooltip) {
+                // Check if the audio was paused before opening the tooltip
+                const audioPlayer = document.getElementById("audio-player");
+                const wasAudioPaused = audioPlayer.paused;
+
+                // Remove the tooltip
+                removeTooltip();
+
+                // If the audio was paused before opening the tooltip, resume playing it
+                if (wasAudioPaused) {
+                    audioPlayer.play();
+                }
+
+                document.removeEventListener("click", removeTooltipOnClick);
+            }
+        }
+        // Function to close the tooltip
+        function closeTooltip() {
+            // Check if the audio was paused before opening the tooltip
+            const audioPlayer = document.getElementById("audio-player");
+            const wasAudioPaused = audioPlayer.paused;
+
+            // Remove the tooltip
+            removeTooltip();
+
+            // If the audio was paused before opening the tooltip, resume playing it
+            if (wasAudioPaused) {
+                audioPlayer.play();
+            }
+        }
+
+        // Function to resume the audio if it was playing before (optional)
+        function resumeAudio() {
+            const audioPlayer = document.getElementById("audio-player");
+            if (!audioPlayer.paused) {
+                audioPlayer.play();
+            }
+        }
+
+        async function handleWordSelection(event) {
+            // Pause the audio if it's playing
+            pauseAudio();
+
+            const selectedWord = event.target.textContent.trim();
+
+            // Show the loader
+            const loader = document.getElementById("loader");
+            loader.style.display = "block";
+
+            if (selectedWord) {
+                try {
+                    // Since getHoveredResult is async, use await to wait for the promise to resolve
+                    const hoveredResult = await getHoveredResult(selectedWord);
+                    console.log(hoveredResult);
+                    $("#word-wrap").text(selectedWord)
+                    console.log(selectedWord);
+                    showHoveredResult(event.clientX, event.clientY, hoveredResult);
+                } catch (error) {
+                    console.error("Failed to get hovered result:", error);
+                    // Optionally, handle the error, e.g., by showing an error message to the user
+                } finally {
+                    // Hide the loader once the content is received or an error occurs
+                    loader.style.display = "none";
+                }
+            }
+        }
+
+        // Function to pause the audio if it's playing
+        function pauseAudio() {
+            const audioPlayer = document.getElementById("audio-player");
+            if (!audioPlayer.paused) {
+                audioStopped = true;
+                audioPlayer.pause();
+            }
+        }
+    </script>
+
+</body>
+
+</html>
