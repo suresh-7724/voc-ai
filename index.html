@@ -230,12 +230,12 @@
                             </div>
                             <div class="col-1 d-flex justify-content-end align-items-center ">
                                 <button type="button" class="btn m-0" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">
-                                <i class="fa-solid fa-gear"></i>
+                                    data-bs-target="#exampleModal">
+                                    <i class="fa-solid fa-gear"></i>
                             </div>
                         </div>
                         </button>
-                        <audio controls id="audio-player" controlsList="nodownload noplaybackrate" ></audio>
+                        <audio controls id="audio-player" controlsList="nodownload noplaybackrate"></audio>
                         <div class="rewind-icons p-2">
                             <!-- <button onclick="rewindAudio(-5)"><i class="fa-solid fa-backward-fast"></i><i
                                     class="fa-solid fa-backward-step" style="margin-left: -3px;"></i></button> -->
@@ -250,7 +250,7 @@
 
                     </div>
                 </div>
-             
+
 
             </div>
 
@@ -425,27 +425,27 @@
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
                                         <select id="native_audio_speed" class="form-select  form-select-sm">
-                                            <option  value="0.55"   >55%</option>
-                                            <option  value="0.70" >70%</option>
-                                            <option  value="0.85" >85%</option>
-                                            <option selected  value="1.00" >100%</option>
-                                            <option  value="1.15" >115%</option>
-                                            <option  value="1.30" >130%</option>
-                                            <option  value="1.45" >145%</option>
+                                            <option value="0.55">55%</option>
+                                            <option value="0.70">70%</option>
+                                            <option value="0.85">85%</option>
+                                            <option selected value="1.00">100%</option>
+                                            <option value="1.15">115%</option>
+                                            <option value="1.30">130%</option>
+                                            <option value="1.45">145%</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
-                                    <select id="foreign_audio_speed" class="form-select  form-select-sm">
-                                        <option value="0.55">55%</option>
-                                        <option value="0.70">70%</option>
-                                        <option value="0.85">85%</option>
-                                        <option selected value="1.00">100%</option>
-                                        <option value="1.15">115%</option>
-                                        <option value="1.30">130%</option>
-                                        <option value="1.45">145%</option>
-                                    </select>
+                                        <select id="foreign_audio_speed" class="form-select  form-select-sm">
+                                            <option value="0.55">55%</option>
+                                            <option value="0.70">70%</option>
+                                            <option value="0.85">85%</option>
+                                            <option selected value="1.00">100%</option>
+                                            <option value="1.15">115%</option>
+                                            <option value="1.30">130%</option>
+                                            <option value="1.45">145%</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -491,7 +491,7 @@
                                         </select>
                                     </div>
                                 </div>
-                            
+
                             </div>
                         </div>
                     </div>
@@ -517,47 +517,80 @@
         let audioPlayer = document.getElementById("audio-player");
         let nativeAudioPlay = true;
         let foreignAudioPlay = true;
-        let phrase_speed =400;
-        let native_phrase_speed=400;
-        let nativeAudioSpeed =1;
-        let foreignAudioSpeed=1;
+        let phrase_speed = 400;
+        let native_phrase_speed = 400;
+        let nativeAudioSpeed = 1;
+        let foreignAudioSpeed = 1;
 
         // load the audio player
         $(document).ready(function () {
-            loadPlayerSettings()
             loadAudioPlayer();
             audioPlayer.addEventListener("ended", function () {
                 setTimeout(() => {
+                    var element = $('.highlight');
+                    var yPos = element.offset().top;
+
+                    var windowHeight = $(window).height();
+
+                    // Calculate the scroll position to center the element vertically
+                    var newScrollTop = yPos - (windowHeight / 2) + (element.outerHeight() / 2);
+
+                    // Animate scrolling to the new position
+                    if(currentDir==nativeDir){
+                        $('html, body').animate({
+                            scrollTop: newScrollTop
+                        }, 500);
+                    }
+
                     loadPlayerSettings()
                     loadAudioPlayer()
+                    $(".original").removeClass("highlight");
+                    $(".translated").removeClass("highlight");
                     if (currentDir == nativeDir) {
-                        console.log(nativeAudioSpeed);
-                        
-                        audioPlayer.playbackRate= nativeAudioSpeed
+                        $(".original").eq(currentAudioIndex - 1).addClass("highlight");
+
+                        audioPlayer.playbackRate = nativeAudioSpeed
                     } else if (currentDir == foreignDir) {
-                        console.log(foreignAudioSpeed);
-                        
-                        audioPlayer.playbackRate= foreignAudioSpeed
+                        $(".translated").eq([currentAudioIndex - 1]).addClass("highlight")
+                        audioPlayer.playbackRate = foreignAudioSpeed
                     }
                     audioPlayer.play()
-                    
+
                 }, phrase_speed);
                 // loadAudioPlayer()
             })
         })
-        $("#phrase_select").change(function(){
-            phrase_speed=parseInt($("#phrase_select").val())
-            
+        function keepHighlightVisible() {
+            const element = document.querySelector('.highlight'); // Get the element with the "highlight" class
+
+            if (element) {
+                const scrollPosition = window.scrollY || window.pageYOffset; // Get current scroll position
+                const elementBottom = element.offsetTop + element.offsetHeight; // Calculate element's bottom position
+                const windowHeight = window.innerHeight; // Get window height
+
+                // Check if the element is near the bottom of the viewport
+                if (elementBottom - scrollPosition < windowHeight) {
+                    // Element is not at the bottom, so do nothing
+                    return;
+                }
+
+                // Element is at the bottom, scroll to keep it visible
+                window.scrollTo(0, elementBottom - windowHeight);
+            }
+        }
+        $("#phrase_select").change(function () {
+            phrase_speed = parseInt($("#phrase_select").val())
+
         })
         $("#foreign_audio_speed").change(function () {
-            foreignAudioSpeed = parseFloat( $("#foreign_audio_speed").val());
-            
-            
-          })
+            foreignAudioSpeed = parseFloat($("#foreign_audio_speed").val());
+
+
+        })
         $("#native_audio_speed").change(function () {
-            nativeAudioSpeed= parseFloat( $("#native_audio_speed").val());
-            
-          })
+            nativeAudioSpeed = parseFloat($("#native_audio_speed").val());
+
+        })
         function loadAudioPlayer() {
             let audioUrl = audioResourceUrl + "/" + currentDir + "/" + currentAudioIndex + ".wav";
             $("#audio-file-name").text(audioUrl);
@@ -569,27 +602,28 @@
                 currentDir = foreignDir
                 if (!foreignAudioPlay) {
                     muteAudio();
-                }else{
+                } else {
                     unMuteAudio();
-                    
+
                 }
             } else if (currentDir == foreignDir) {
                 currentDir = nativeDir
                 currentAudioIndex++;
                 if (!nativeAudioPlay) {
                     muteAudio();
-                }else{
+                } else {
 
                     unMuteAudio();
                 }
             }
-            
+            console.log(currentDir);
+
         }
-        function muteAudio(){
-            audioPlayer.muted=true;
+        function muteAudio() {
+            audioPlayer.muted = true;
         }
-        function unMuteAudio(){
-            audioPlayer.muted=false;
+        function unMuteAudio() {
+            audioPlayer.muted = false;
         }
         function playAudio() {
             audioPlayer.play()
@@ -710,6 +744,8 @@
 
                 container.appendChild(originalParagraph);
                 container.appendChild(translatedParagraph);
+                $(".original").eq(0).addClass("highlight");
+
             });
         }
 
@@ -783,10 +819,10 @@
             audioPlayer.currentTime += seconds;
         }
         function togglePlayPause() {
-        
+
             const audioPlayer = document.getElementById("audio-player");
             const playPauseBtn = document.getElementById("play-pause-btn");
-            
+
             if (audioPlayer.paused || audioPlayer.ended) {
                 loadAudioPlayer()
                 audioPlayer.play();
