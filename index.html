@@ -235,8 +235,8 @@
                                 </button>
                                 <div class="mx-2">
 
-                                    <i id="open-saved-button" class="fa-solid fa-heart text-danger" data-bs-toggle="modal"
-                                        data-bs-target="#wordPairModal"></i>
+                                    <i id="open-saved-button" class="fa-solid fa-heart text-danger"
+                                        data-bs-toggle="modal" data-bs-target="#wordPairModal"></i>
                                 </div>
 
                             </div>
@@ -526,9 +526,9 @@
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="saved_words_body" > 
-                     
-                             
+                            <tbody id="saved_words_body">
+
+
                             </tbody>
                         </table>
                     </div>
@@ -600,32 +600,48 @@
                 }, phrase_speed);
                 // loadAudioPlayer()
             })
-            $("#open-saved-button").click(function(){
-                       let sessionJson = sessionStorage.getItem("saved_list");
+            $("#open-saved-button").click(function () {
+                showSavedWordsTable();
+            })
 
-                // Check if sessionStorage has "saved_list" item
-                if (!sessionJson) {
-                    // If not there, create an empty array and store it
-                    sessionJson = "[]";
-                    sessionStorage.setItem("saved_list", sessionJson);
-                }
 
-                sessionJson = JSON.parse(sessionJson);
-                let i=1;
-                let trElem="";
-                sessionJson.forEach(element => {
-                    trElem+=`<tr>
+        })
+        function removeSaved(index) {
+            let sessionJson = sessionStorage.getItem("saved_list");
+            sessionJson = JSON.parse(sessionJson);
+            sessionJson.splice(index-1, 1);
+
+            sessionJson = JSON.stringify(sessionJson);
+            sessionStorage.setItem("saved_list", sessionJson);
+            showSavedWordsTable()
+        }
+        function showSavedWordsTable() {
+
+            let sessionJson = sessionStorage.getItem("saved_list");
+
+            // Check if sessionStorage has "saved_list" item
+            if (!sessionJson) {
+                // If not there, create an empty array and store it
+                sessionJson = "[]";
+                sessionStorage.setItem("saved_list", sessionJson);
+            }
+
+            sessionJson = JSON.parse(sessionJson);
+            let i = 1;
+            let trElem = "";
+            sessionJson.forEach(element => {
+                if (element == null) return;
+                trElem += `<tr>
                                     <th scope="row">${i}</th>
-                                    <td>${element.word}</td>
-                                    <td>${element.nativeWord}</td>
+                                    <td>${element?.word}</td>
+                                    <td>${element?.nativeWord}</td>
                                     <td><a onclick="removeSaved(${i})" href="javascript:void(0)">Remove</a></td>
                                 </tr>
-                                `                    
-                                i++;
-                });                
-                $("#saved_words_body").html(trElem)
-            })
-        })
+                                `
+                i++;
+            });
+            $("#saved_words_body").html(trElem)
+        }
         $("#native_text_size").change(() => {
             $(".original_para").css("font-size", $("#native_text_size").val());
         })
