@@ -458,11 +458,11 @@
                                         <label class="form-label mx-2  text-sm">
                                             Phrases Space
                                         </label>
-                                        <select class="form-select  form-select-sm">
-                                            <option>Slow</option>
-                                            <option value="1">Very Slow</option>
-                                            <option value="2">Fast</option>
-                                            <option value="3">Very Fast</option>
+                                        <select id="phrase_select" onchange="" class="form-select  form-select-sm">
+                                            <option selected value="400">Slow</option>
+                                            <option value="500">Very Slow</option>
+                                            <option value="200">Fast</option>
+                                            <option value="50">Very Fast</option>
                                         </select>
                                     </div>
                                 </div>
@@ -517,18 +517,25 @@
         let audioPlayer = document.getElementById("audio-player");
         let nativeAudioPlay = true;
         let foreignAudioPlay = true;
+        let phrase_speed=400;
         // load the audio player
         $(document).ready(function () {
             loadPlayerSettings()
             loadAudioPlayer();
             audioPlayer.addEventListener("ended", function () {
+                setTimeout(() => {
                     loadPlayerSettings()
                     loadAudioPlayer()
+                    audioPlayer.play()
+                    
+                }, phrase_speed);
                 // loadAudioPlayer()
-                audioPlayer.play()
             })
         })
-
+        $("#phrase_select").change(function(){
+            phrase_speed=parseInt($("#phrase_select").val())
+            
+        })
         function loadAudioPlayer() {
             let audioUrl = audioResourceUrl + "/" + currentDir + "/" + currentAudioIndex + ".wav";
             $("#audio-file-name").text(audioUrl);
