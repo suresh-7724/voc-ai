@@ -508,8 +508,8 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         let audioResourceUrl = "https://voc-ai.vercel.app/jake";
-        let foreignDir = "FR";
-        let nativeDir = "EN";
+        let foreignDir = "EN";
+        let nativeDir = "FR";
         let currentAudioIndex = 1;
         let currentDir = foreignDir;
         let textSize = 16; // Initial text size
@@ -544,14 +544,14 @@
 
                     loadPlayerSettings()
                     loadAudioPlayer()
-                    $(".original").removeClass("highlight");
-                    $(".translated").removeClass("highlight");
+                    $(".original_para").removeClass("highlight");
+                    $(".translated_para").removeClass("highlight");
                     if (currentDir == nativeDir) {
-                        $(".original").eq(currentAudioIndex - 1).addClass("highlight");
+                        $(".original_para").eq(currentAudioIndex - 1).addClass("highlight");
 
                         audioPlayer.playbackRate = nativeAudioSpeed
                     } else if (currentDir == foreignDir) {
-                        $(".translated").eq([currentAudioIndex - 1]).addClass("highlight")
+                        $(".translated_para").eq([currentAudioIndex - 1]).addClass("highlight")
                         audioPlayer.playbackRate = foreignAudioSpeed
                     }
                     audioPlayer.play()
@@ -713,7 +713,8 @@
 
                 const originalParagraph = document.createElement("p");
                 const translatedParagraph = document.createElement("p");
-
+                originalParagraph.classList.add("original_para");
+                translatedParagraph.classList.add("translated_para");
                 const originalWords = originalText.split(" ");
                 const translatedWords = translatedText.split(" ");
 
@@ -744,7 +745,7 @@
 
                 container.appendChild(originalParagraph);
                 container.appendChild(translatedParagraph);
-                $(".translated").eq(0).addClass("highlight");
+                $(".translated_para").eq(0).addClass("highlight");
 
             });
         }
