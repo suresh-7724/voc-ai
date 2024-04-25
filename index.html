@@ -226,7 +226,7 @@
                     <div class="col-12 d-flex align-items-center flex-column player-layout">
                         <div class="col-12 d-flex justify-content-between">
                             <div class="col-11 d-flex justify-content-center align-items-center">
-                                <h5 class="title ms-2 mb-0">Title of the audio</h5>
+                                <h5 class="title ms-2 mb-0">Translated Results</h5>
                             </div>
                             <div class="col-1 d-flex justify-content-end align-items-center ">
                                 <button type="button" class="btn m-0" data-bs-toggle="modal"
@@ -393,25 +393,25 @@
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
-                                        <select class="form-select  form-select-sm">
-                                            <option>Very Small</option>
-                                            <option value="1">Small</option>
-                                            <option value="2">Medium</option>
-                                            <option value="3">Large</option>
-                                            <option value="3">Very Large</option>
-                                            <option value="3">Huge</option>
+                                        <select id="native_text_size" class="form-select  form-select-sm">
+                                            <option value="10px">Very Small</option>
+                                            <option value="12px">Small</option>
+                                            <option selected value="16px">Medium</option>
+                                            <option value="20px">Large</option>
+                                            <option value="24px">Very Large</option>
+                                            <option value="30px">Huge</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
-                                        <select class="form-select  form-select-sm">
-                                            <option>Very Small</option>
-                                            <option value="1">Small</option>
-                                            <option value="2">Medium</option>
-                                            <option value="3">Large</option>
-                                            <option value="3">Very Large</option>
-                                            <option value="3">Huge</option>
+                                        <select id="foreign_text_size" class="form-select  form-select-sm">
+                                            <option value="10px">Very Small</option>
+                                            <option value="12px">Small</option>
+                                            <option selected value="16px">Medium</option>
+                                            <option value="20px">Large</option>
+                                            <option value="24px">Very Large</option>
+                                            <option value="30px">Huge</option>
                                         </select>
                                     </div>
                                 </div>
@@ -533,13 +533,13 @@
                     var windowHeight = $(window).height();
 
                     // Calculate the scroll position to center the element vertically
-                    var newScrollTop = yPos - (windowHeight / 2) + (element.outerHeight() / 2);
+                    var newScrollTop = yPos - (windowHeight / 2) + (element.outerHeight() / 2) - 200;
 
                     // Animate scrolling to the new position
-                    if(currentDir==nativeDir){
+                    if (currentDir == nativeDir) {
                         $('html, body').animate({
                             scrollTop: newScrollTop
-                        }, 500);
+                        }, 100);
                     }
 
                     loadPlayerSettings()
@@ -559,6 +559,14 @@
                 }, phrase_speed);
                 // loadAudioPlayer()
             })
+        })
+        $("#native_text_size").change(() => {
+            $(".original_para").css("font-size", $("#native_text_size").val());
+        })
+        $("#foreign_text_size").change(() => {
+            console.log('inn');
+
+            $(".translated_para").css("font-size", $("#foreign_text_size").val());
         })
         function keepHighlightVisible() {
             const element = document.querySelector('.highlight'); // Get the element with the "highlight" class
