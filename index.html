@@ -547,8 +547,8 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         let audioResourceUrl = "https://voc-ai.vercel.app/jake";
-        let foreignDir = "EN";
-        let nativeDir = "FR";
+        let foreignDir = "FR";
+        let nativeDir = "EN";
         let currentAudioIndex = 1;
         let currentDir = foreignDir;
         let textSize = 16; // Initial text size
@@ -588,11 +588,11 @@
                     $(".original_para").removeClass("highlight");
                     $(".translated_para").removeClass("highlight");
                     if (currentDir == nativeDir) {
-                        $(".original_para").eq(currentAudioIndex - 1).addClass("highlight");
-
+                        $(".translated_para").eq([currentAudioIndex - 1]).addClass("highlight")
+                        
                         audioPlayer.playbackRate = nativeAudioSpeed
                     } else if (currentDir == foreignDir) {
-                        $(".translated_para").eq([currentAudioIndex - 1]).addClass("highlight")
+                        $(".original_para").eq(currentAudioIndex - 1).addClass("highlight");
                         audioPlayer.playbackRate = foreignAudioSpeed
                     }
                     audioPlayer.play()
@@ -689,13 +689,13 @@
         }
         function loadPlayerSettings() {
             if (currentDir == nativeDir) {
-                currentDir = foreignDir
                 currentAudioIndex++;
+                currentDir = foreignDir
                 if (!foreignAudioPlay) {
                     muteAudio();
                 } else {
                     unMuteAudio();
-
+                    
                 }
             } else if (currentDir == foreignDir) {
                 currentDir = nativeDir
@@ -857,7 +857,7 @@
 
                 container.appendChild(originalParagraph);
                 container.appendChild(translatedParagraph);
-                $(".translated_para").eq(0).addClass("highlight");
+                $(".original_para").eq(0).addClass("highlight");
                 index++;
 
             });
