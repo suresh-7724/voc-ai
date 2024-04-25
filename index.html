@@ -620,10 +620,8 @@
                 if (element == null) return;
                 
                 var nativePara = $('[data-id="' + element.dataParentId + '"][data-type="O"]');
-                console.log(nativePara);
                 
                 var children = $(nativePara).find('[data-word-id="' + element.dataId + '"][data-word-type="O"]').addClass("saved");
-                console.log(children);
 
             });
         }
@@ -669,7 +667,6 @@
             $(".original_para").css("font-size", $("#native_text_size").val());
         })
         $("#foreign_text_size").change(() => {
-            console.log('inn');
 
             $(".translated_para").css("font-size", $("#foreign_text_size").val());
         })
@@ -706,7 +703,7 @@
         })
         function loadAudioPlayer() {
             let audioUrl = audioResourceUrl + "/" + currentDir + "/" + currentAudioIndex + ".wav";
-            $("#audio-file-name").text(audioUrl);
+            
             audioPlayer.src = audioUrl;
 
         }
@@ -1343,12 +1340,9 @@
                 try {
                     // Since getHoveredResult is async, use await to wait for the promise to resolve
                     const hoveredResult = await getHoveredResult(Word);
-                    console.log(hoveredResult);
                     $("#word-wrap").text(Word)
-                    console.log(Word);
                     showHoveredResult(event.clientX, event.clientY, hoveredResult);
                 } catch (error) {
-                    console.error("Failed to get hovered result:", error);
                     // Optionally, handle the error, e.g., by showing an error message to the user
                 } finally {
                     // Hide the loader once the content is received or an error occurs
