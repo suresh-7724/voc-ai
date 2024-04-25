@@ -424,28 +424,28 @@
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
-                                        <select class="form-select  form-select-sm">
-                                            <option>55%</option>
-                                            <option>70%</option>
-                                            <option>85%</option>
-                                            <option>100%</option>
-                                            <option>115%</option>
-                                            <option>130%</option>
-                                            <option>145%</option>
+                                        <select id="native_audio_speed" class="form-select  form-select-sm">
+                                            <option  value="0.55"   >55%</option>
+                                            <option  value="0.70" >70%</option>
+                                            <option  value="0.85" >85%</option>
+                                            <option selected  value="1.00" >100%</option>
+                                            <option  value="1.15" >115%</option>
+                                            <option  value="1.30" >130%</option>
+                                            <option  value="1.45" >145%</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
-                                        <select class="form-select  form-select-sm">
-                                            <option>55%</option>
-                                            <option>70%</option>
-                                            <option>85%</option>
-                                            <option>100%</option>
-                                            <option>115%</option>
-                                            <option>130%</option>
-                                            <option>145%</option>
-                                        </select>
+                                    <select id="foreign_audio_speed" class="form-select  form-select-sm">
+                                        <option value="0.55">55%</option>
+                                        <option value="0.70">70%</option>
+                                        <option value="0.85">85%</option>
+                                        <option selected value="1.00">100%</option>
+                                        <option value="1.15">115%</option>
+                                        <option value="1.30">130%</option>
+                                        <option value="1.45">145%</option>
+                                    </select>
                                     </div>
                                 </div>
 
@@ -517,7 +517,11 @@
         let audioPlayer = document.getElementById("audio-player");
         let nativeAudioPlay = true;
         let foreignAudioPlay = true;
-        let phrase_speed=400;
+        let phrase_speed =400;
+        let native_phrase_speed=400;
+        let nativeAudioSpeed =1;
+        let foreignAudioSpeed=1;
+
         // load the audio player
         $(document).ready(function () {
             loadPlayerSettings()
@@ -526,6 +530,15 @@
                 setTimeout(() => {
                     loadPlayerSettings()
                     loadAudioPlayer()
+                    if (currentDir == nativeDir) {
+                        console.log(nativeAudioSpeed);
+                        
+                        audioPlayer.playbackRate= nativeAudioSpeed
+                    } else if (currentDir == foreignDir) {
+                        console.log(foreignAudioSpeed);
+                        
+                        audioPlayer.playbackRate= foreignAudioSpeed
+                    }
                     audioPlayer.play()
                     
                 }, phrase_speed);
@@ -536,6 +549,15 @@
             phrase_speed=parseInt($("#phrase_select").val())
             
         })
+        $("#foreign_audio_speed").change(function () {
+            foreignAudioSpeed = parseFloat( $("#foreign_audio_speed").val());
+            
+            
+          })
+        $("#native_audio_speed").change(function () {
+            nativeAudioSpeed= parseFloat( $("#native_audio_speed").val());
+            
+          })
         function loadAudioPlayer() {
             let audioUrl = audioResourceUrl + "/" + currentDir + "/" + currentAudioIndex + ".wav";
             $("#audio-file-name").text(audioUrl);
@@ -764,6 +786,7 @@
         
             const audioPlayer = document.getElementById("audio-player");
             const playPauseBtn = document.getElementById("play-pause-btn");
+            
             if (audioPlayer.paused || audioPlayer.ended) {
                 loadAudioPlayer()
                 audioPlayer.play();
