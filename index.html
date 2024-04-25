@@ -822,10 +822,10 @@
                 originalWords.forEach((word) => {
                     const span = document.createElement("span");
                     span.textContent = word;
-                    span.classList.add("original", "word-link");
+                    span.classList.add("original", "word-link", "word-click");
+                   
                     span.setAttribute("data-word-id", wordIndex)
                     span.setAttribute("data-word-type", "O")
-
                     // span.addEventListener("click", handleWordSelection);
 
                     originalParagraph.appendChild(span);
@@ -845,8 +845,8 @@
                 translatedWords.forEach((word) => {
                     const span = document.createElement("span");
                     span.textContent = word;
-                    span.classList.add("translated", "word-link", "word-click");
-                    span.setAttribute("data-word-id", wordIndex)
+                    span.classList.add("translated", "word-link");
+                span.setAttribute("data-word-id", wordIndex)
                     span.setAttribute("data-word-type", "O")
                     // span.addEventListener("click", handleWordSelection);
                     translatedParagraph.appendChild(span);
@@ -855,8 +855,8 @@
 
                 });
 
-                container.appendChild(translatedParagraph);
                 container.appendChild(originalParagraph);
+                container.appendChild(translatedParagraph);
                 $(".translated_para").eq(0).addClass("highlight");
                 index++;
 
@@ -1258,7 +1258,7 @@
             let dataId = $(event.target).attr("data-word-id");
             let parentDataId = $(event.target).parent().attr("data-id");
             let dataType = $(event.target).attr("data-type");
-            var nativePara = $('[data-id="' + parentDataId + '"][data-type="O"]');
+            var nativePara = $('[data-id="' + parentDataId + '"][data-type="T"]');
             var children = $(nativePara).find('[data-word-id="' + dataId + '"][data-word-type="O"]').text();
             storeWords(word, children, dataId, parentDataId)
             $(event.target).addClass("saved")
