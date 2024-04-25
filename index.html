@@ -227,21 +227,24 @@
                         <div class="col-12 d-flex justify-content-between">
                             <div class="col-11 d-flex justify-content-center align-items-center">
                                 <h5 class="title ms-2 mb-0">Translated Results</h5>
+                                <button id="myElement">elel</button>
                             </div>
                             <div class="col-1 d-flex justify-content-end align-items-center ">
                                 <button type="button" class="btn m-0" data-bs-toggle="modal"
                                     data-bs-target="#exampleModal">
                                     <i class="fa-solid fa-gear"></i>
+                                </button>
+                                <i class="fa-solid fa-heart text-danger"></i>
+
                             </div>
                         </div>
-                        </button>
                         <audio controls id="audio-player" controlsList="nodownload noplaybackrate"></audio>
                         <div class="rewind-icons p-2">
                             <!-- <button onclick="rewindAudio(-5)"><i class="fa-solid fa-backward-fast"></i><i
                                     class="fa-solid fa-backward-step" style="margin-left: -3px;"></i></button> -->
                             <!-- <button onclick="rewindAudio(-10)"><i class="fa-solid fa-backward-fast"></i></button> -->
-                            <button onclick="rewindAudio(-3)"> <i class="fa-solid fa-backward"></i></button>
                             <button onclick="rewindAudio(-3)"> <i class="fa-solid fa-backward-step"></i></button>
+                            <button onclick="rewindAudio(-3)"> <i class="fa-solid fa-backward"></i></button>
                             <button onclick="togglePlayPause()" id="play-pause-btn">
                                 <i class="fa-regular fa-circle-play"></i>
                             </button>
@@ -521,9 +524,11 @@
         let native_phrase_speed = 400;
         let nativeAudioSpeed = 1;
         let foreignAudioSpeed = 1;
+        let doubleClickDelay = 250; // Adjust as needed
 
         // load the audio player
         $(document).ready(function () {
+
             loadAudioPlayer();
             audioPlayer.addEventListener("ended", function () {
                 setTimeout(() => {
@@ -654,6 +659,11 @@
             loadPlayerSettings()
 
         });
+
+        // $(".word-link").dblclick(()=>{
+        //     console.log('double inn');
+
+        // })
         // document
         //     .getElementById("audio-input")
         //     .addEventListener("change", function (event) {
@@ -714,6 +724,7 @@
             const container = document.getElementById("text-container");
             container.innerHTML = "";
             let isFirstOriginal = true;
+            let index = 0;
             output.forEach((item) => {
                 const originalText = item.Original;
                 const translatedText = item.Translated;
@@ -721,19 +732,28 @@
 
                 const originalParagraph = document.createElement("p");
                 const translatedParagraph = document.createElement("p");
+                originalParagraph.setAttribute("data-type", "O")
+                originalParagraph.setAttribute("data-id", index)
+                translatedParagraph.setAttribute("data-type", "T")
+                translatedParagraph.setAttribute("data-id", index)
                 originalParagraph.classList.add("original_para");
                 translatedParagraph.classList.add("translated_para");
                 const originalWords = originalText.split(" ");
                 const translatedWords = translatedText.split(" ");
 
+                let wordIndex = 0;
                 originalWords.forEach((word) => {
                     const span = document.createElement("span");
                     span.textContent = word;
                     span.classList.add("original", "word-link");
-                    span.addEventListener("click", handleWordSelection);
+                    span.setAttribute("data-word-id", wordIndex)
+                    span.setAttribute("data-word-type", "O")
+
+                    // span.addEventListener("click", handleWordSelection);
 
                     originalParagraph.appendChild(span);
                     originalParagraph.appendChild(document.createTextNode(" "));
+                    wordIndex++;
                 });
 
                 if (!isFirstOriginal) {
@@ -742,20 +762,48 @@
                     isFirstOriginal = false;
                 }
 
+
+                wordIndex = 0;
+
                 translatedWords.forEach((word) => {
                     const span = document.createElement("span");
                     span.textContent = word;
-                    span.classList.add("translated", "word-link");
-                    span.addEventListener("click", handleWordSelection);
+                    span.classList.add("translated", "word-link", "word-click");
+                    span.setAttribute("data-word-id", wordIndex)
+                    span.setAttribute("data-word-type", "O")
+                    // span.addEventListener("click", handleWordSelection);
                     translatedParagraph.appendChild(span);
                     translatedParagraph.appendChild(document.createTextNode(" "));
+                    wordIndex++;
+
                 });
 
                 container.appendChild(translatedParagraph);
                 container.appendChild(originalParagraph);
                 $(".translated_para").eq(0).addClass("highlight");
+                index++;
 
             });
+
+            var wordElement = $('.word-click');
+            var singleClickTimer;
+
+            wordElement.on('click', function (event) {
+                if (!singleClickTimer) {
+                    singleClickTimer = setTimeout(function () {
+                        // Single click action
+                        addTofavorite(event)
+                        singleClickTimer = null;
+                    }, doubleClickDelay);
+                } else {
+                    // Prevent single click action
+                    clearTimeout(singleClickTimer);
+                    singleClickTimer = null;
+                    // Double click action
+                    handleWordSelection(event)
+                }
+            });
+
         }
 
         window.onload = function () {
@@ -844,23 +892,23 @@
             }
         }
         // Function to handle double-click event on words
-        function handleWordSelection(event) {
-            const Word = event.target.textContent.trim();
+        // function handleWordSelection(event) {
+        //     const Word = event.target.textContent.trim();
 
-            if (Word) {
-                // Since getHoveredResult is async, use .then() to wait for the promise to resolve
-                getHoveredResult(Word)
-                    .then((hoveredResult) => {
+        //     if (Word) {
+        //         // Since getHoveredResult is async, use .then() to wait for the promise to resolve
+        //         getHoveredResult(Word)
+        //             .then((hoveredResult) => {
 
 
-                        showHoveredResult(event.clientX, event.clientY, hoveredResult);
-                    })
-                    .catch((error) => {
-                        console.error("Failed to get hovered result:", error);
-                        // Optionally, handle the error, e.g., by showing an error message to the user
-                    });
-            }
-        }
+        //                 showHoveredResult(event.clientX, event.clientY, hoveredResult);
+        //             })
+        //             .catch((error) => {
+        //                 console.error("Failed to get hovered result:", error);
+        //                 // Optionally, handle the error, e.g., by showing an error message to the user
+        //             });
+        //     }
+        // }
         async function getHoveredResult(word) {
             try {
                 const myHeaders = new Headers();
@@ -1128,7 +1176,58 @@
                 audioPlayer.play();
             }
         }
+        function addTofavorite(event) {
+            let word = event.target.textContent.trim();
+            let dataId = $(event.target).attr("data-word-id");
+            let parentDataId = $(event.target).parent().attr("data-id");
+            let dataType = $(event.target).attr("data-type");
+            var nativePara = $('[data-id="' + parentDataId + '"][data-type="O"]');
+            var children = $(nativePara).find('[data-word-id="' + dataId + '"][data-word-type="O"]').text();
+            storeWords(word, children, dataId, parentDataId)
+            $(event.target).addClass("saved")
+            $(event.target).after('<i class="fa-solid fa-heart text-danger" id=' + dataId + dataType + ' ></i>');
+            setTimeout(() => {
+                $("#" + dataId + dataType).remove()
+            }, 1000);
+        }
+        function storeWords(word, nativeWord, dataId, dataParentId) {
+     let wordJson = {  // Assuming wordJson represents a single object
+                word: word,
+                nativeWord: nativeWord,
+                dataId: dataId,
+                dataParentId: dataParentId
+            };
 
+            let sessionJson = sessionStorage.getItem("saved_list");
+
+            // Check if sessionStorage has "saved_list" item
+            if (!sessionJson) {
+                // If not there, create an empty array and store it
+                sessionJson = "[]";
+                sessionStorage.setItem("saved_list", sessionJson);
+            }
+
+            sessionJson = JSON.parse(sessionJson);
+
+            function isUnique(obj, existingList) {
+                // Custom comparison to check for objects with same properties and values
+                for (const item of existingList) {
+                    if (Object.keys(obj).every(key => obj[key] === item[key])) {
+                        return false; // Not unique if all properties match
+                    }
+                }
+                return true; // Unique if no matches found
+            }
+
+            const isNewWordUnique = isUnique(wordJson, sessionJson);
+
+            if (isNewWordUnique) {
+                sessionJson.push(wordJson);  // Add wordJson to sessionJson if unique
+                sessionStorage.setItem("saved_list", JSON.stringify(sessionJson));  // Update storage
+            }
+
+            
+        }
         async function handleWordSelection(event) {
             // Pause the audio if it's playing
             pauseAudio();

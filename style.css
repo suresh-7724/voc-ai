@@ -132,9 +132,14 @@ h1 {
     padding: 2px 4px;
     color: white;
 }
+.text-container .saved{
+    background-color: #FF6500;
+    color: #000;
+}
 .text-container .highlight .original{
     background: none;
 }
+
 @media only screen and (min-width:768px)
 {
     body{
