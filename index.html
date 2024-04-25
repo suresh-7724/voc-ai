@@ -5,7 +5,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JSON File Upload</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+        integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Common styles */
         body {
@@ -207,24 +212,217 @@
             <label for="file-input" class="file-upload">Upload JSON File</label>
             <span class="file-name" id="file-name"></span>
         </div>
-        <div class="btn-container">
-            <button class="btn" onclick="increaseTextSize()">
-                Increase Text Size
+        <!-- <div class="btn-container">
+            <button class="btn btn-info text-white" onclick="increaseTextSize()">
+                Font Size <i class="fas fa-plus"></i>
             </button>
-            <button class="btn" onclick="decreaseTextSize()">
-                Decrease Text Size
+            <button class="btn btn-danger text-white" onclick="decreaseTextSize()">
+                Font Size <i class="fas fa-minus"></i>
             </button>
-        </div>
+        </div> -->
         <div class="rewind-section">
-            <audio controls id="audio-player"></audio>
-            <div class="rewind-icons">
-                <button onclick="rewindAudio(-3)">&#9664;&#9664; 3s</button>
-                <button onclick="rewindAudio(-5)">&#9664;&#9664; 5s</button>
-                <button onclick="rewindAudio(-10)">&#9664;&#9664; 10s</button>
-                <button onclick="togglePlayPause()" id="play-pause-btn">
-                    &#9658;
-                </button>
+            <div class="row">
+                <div class="col-md-6 row">
+                    <div class="col-12 d-flex align-items-center flex-column player-layout">
+                        <audio controls id="audio-player"></audio>
+                        <div class="rewind-icons p-2">
+                            <button onclick="rewindAudio(-5)"><i class="fa-solid fa-backward-fast"></i><i
+                                    class="fa-solid fa-backward-step" style="margin-left: -3px;"></i></button>
+                            <button onclick="rewindAudio(-10)"><i class="fa-solid fa-backward-fast"></i></button>
+                            <button onclick="rewindAudio(-3)"> <i class="fa-solid fa-backward-step"></i></button>
+                            <button onclick="togglePlayPause()" id="play-pause-btn">
+                                <i class="fa-regular fa-circle-play"></i>
+                            </button>
+                        </div>
+                        <div class="col-12 row">
+                            <div class="col-5">
+                                <div class="form-group p-2">
+                                    <label class="form-label mx-2  text-sm">
+                                        Phrases Space
+                                    </label>
+                                    <select class="form-select  form-select-sm">
+                                        <option selected>Slow</option>
+                                        <option value="1">Very Slow</option>
+                                        <option value="2">Fast</option>
+                                        <option value="3">Very Fast</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-7">
+                                <div class="form-group p-2">
+                                    <label class="form-label mx-2  text-sm">
+                                        Double click sensitivity
+                                    </label>
+                                    <select class="form-select  form-select-sm">
+                                        <option selected>Low (slow)</option>
+                                        <option value="2">Medium</option>
+                                        <option value="3">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 row">
+                            <div class="col-5">
+                                <div class="form-group p-2">
+                                    <label class="form-label   text-sm">
+                                        Language Order
+                                    </label>
+                                    <select class="form-select  form-select-sm">
+                                        <option value="3">Native First</option>
+                                        <option value="1">Foreign First</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-7">
+                                <div class="form-group p-2">
+                                    <label class="form-label   text-sm">
+                                        Double click sensitivity
+                                    </label>
+                                    <select class="form-select  form-select-sm">
+                                        <option selected>Low (slow)</option>
+                                        <option value="2">Medium</option>
+                                        <option value="3">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-6">
+                    <div class="col-12 row">
+
+                        <div class="col-4">
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <label class="form-label mx-2  text-sm">
+                                    <strong>
+                                        Native
+                                    </strong>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <label class="form-label mx-2  text-sm">
+                                    <strong>
+
+                                        Foreign
+                                    </strong>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 row">
+                        <div class="col-4">
+                            <label class="form-label mx-2 text-sm"> <strong>Audio:</strong></label>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="foreignLanguageSwitch" checked>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="foreignLanguageSwitch" checked>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 row">
+                        <div class="col-4">
+                            <label class="form-label mx-2 text-sm"> <strong>Text:</strong></label>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="foreignLanguageSwitch" checked>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="foreignLanguageSwitch" checked>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 row">
+                        <div class="col-4">
+                            <label class="form-label mx-2 text-sm"> <strong>Text size:</strong></label>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <select class="form-select  form-select-sm">
+                                    <option selected>Very Small</option>
+                                    <option value="1">Small</option>
+                                    <option value="2">Medium</option>
+                                    <option value="3">Large</option>
+                                    <option value="3">Very Large</option>
+                                    <option value="3">Huge</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <select class="form-select  form-select-sm">
+                                    <option selected>Very Small</option>
+                                    <option value="1">Small</option>
+                                    <option value="2">Medium</option>
+                                    <option value="3">Large</option>
+                                    <option value="3">Very Large</option>
+                                    <option value="3">Huge</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-12 row">
+                        <div class="col-4">
+                            <label class="form-label mx-2 text-sm"> <strong>Voice Speed:</strong></label>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <select class="form-select  form-select-sm">
+                                    <option>55%</option>
+                                    <option>70%</option>
+                                    <option>85%</option>
+                                    <option selected>100%</option>
+                                    <option>115%</option>
+                                    <option>130%</option>
+                                    <option>145%</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3 d-flex justify-content-center">
+                                <select class="form-select  form-select-sm">
+                                    <option>55%</option>
+                                    <option selected>70%</option>
+                                    <option>85%</option>
+                                    <option>100%</option>
+                                    <option>115%</option>
+                                    <option>130%</option>
+                                    <option>145%</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-12">
+                        
+                    </div>
+
+                </div>
             </div>
+
         </div>
         <h2>Translated Results</h2>
         <div class="text-container" id="text-container">
@@ -256,7 +454,7 @@
                         </strong> <span id="example_translate_2"></span></div>
                 </div>
 
-                <div  id="conjugation-div" class="content-details">
+                <div id="conjugation-div" class="content-details">
                     <div class="head-text">
                         Conjugations:
                         <div class="" id="conjugations_wrap">
@@ -285,23 +483,23 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
-        let audioResourceUrl="https://voc-ai.vercel.app/jake";
-        let foreignDir="FR";
-        let defaultDir="EN";
-        let currentAudioIndex=1;
-        let currentDir=defaultDir;
+        let audioResourceUrl = "https://voc-ai.vercel.app/jake";
+        let foreignDir = "FR";
+        let defaultDir = "EN";
+        let currentAudioIndex = 1;
+        let currentDir = defaultDir;
         let textSize = 16; // Initial text size
         let audioStopped = false;
-        let audioPlayer=document.getElementById("audio-player");
+        let audioPlayer = document.getElementById("audio-player");
 
         // load the audio player
-        $(document).ready(function(){
+        $(document).ready(function () {
             loadAudioPlayer();
-            audioPlayer.addEventListener("ended",function(){
-                if(currentDir==defaultDir){
-                    currentDir=foreignDir
-                }else if (currentDir==foreignDir){
-                    currentDir=defaultDir
+            audioPlayer.addEventListener("ended", function () {
+                if (currentDir == defaultDir) {
+                    currentDir = foreignDir
+                } else if (currentDir == foreignDir) {
+                    currentDir = defaultDir
                     currentAudioIndex++;
                 }
                 loadAudioPlayer()
@@ -309,11 +507,11 @@
             })
         })
 
-        function loadAudioPlayer(){
-            let audioUrl=audioResourceUrl+"/"+currentDir+"/"+currentAudioIndex+".wav";
+        function loadAudioPlayer() {
+            let audioUrl = audioResourceUrl + "/" + currentDir + "/" + currentAudioIndex + ".wav";
             $("#audio-file-name").text(audioUrl);
-            audioPlayer.src=audioUrl;
-            
+            audioPlayer.src = audioUrl;
+
         }
 
         document
@@ -647,16 +845,16 @@
             $("#word_assc_translate").html(tipsHtml)
 
             let conjugationsHtml = "";
-            let i=0;
+            let i = 0;
             for (var person in result.conjugations) {
                 if (result.conjugations.hasOwnProperty(person)) {
                     i++;
                     conjugationsHtml += `<div class="spanish-text"><b> <span >${person}</span></b><span style="color:#000";  >${result.conjugations[person]}</span></div>`
                 }
             }
-            if(i>0){
+            if (i > 0) {
                 $("#conjugation-div").show()
-            }else{
+            } else {
                 $("#conjugation-div").hide()
 
             }

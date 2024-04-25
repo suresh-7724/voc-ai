@@ -119,6 +119,14 @@ h1 {
 .spanish-text span {
     display: block;
 }
+.text-sm{
+    font-size: 14px;
+}
+.player-layout .text-sm{
+    font-size: 13px;
+    /* text-align: center; */
+
+}
 @media only screen and (min-width:768px)
 {
     body{
