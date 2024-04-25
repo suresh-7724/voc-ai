@@ -21,7 +21,6 @@ h1 {
     position: fixed;
     background: rgba(0, 0, 0, 0.3);
 }
-
 .contents {
     bottom: 0;
     width: 100%;
@@ -32,6 +31,7 @@ h1 {
     border-radius: 14px;
     background: #f1f1f1;
     border: 1px solid #ccc;
+    top: 121px;
 }
 
 .more-example {
@@ -70,8 +70,8 @@ h1 {
 }
 
 .close svg {
-    width: 24px;
-    height: 24px;
+    width: 42px;
+        height: 42px;
 }
 
 .close svg path {
@@ -91,7 +91,7 @@ h1 {
 
 .content-details ul li {
     padding-left: 2px;
-    margin-left: 20px;
+    margin-left: 30px;
     list-style: decimal;
 }
 
@@ -100,7 +100,7 @@ h1 {
 }
 
 .content-details .head-text {
-    font-size: 13px;
+    /* font-size: 13px; */
     color: #005a9e;
 }
 
@@ -118,4 +118,22 @@ h1 {
 
 .spanish-text span {
     display: block;
+}
+.text-sm{
+    font-size: 14px;
+}
+.player-layout .text-sm{
+    font-size: 13px;
+    /* text-align: center; */
+
+}
+@media only screen and (min-width:768px)
+{
+    body{
+        width: 800px;
+        margin: auto;
+    }
+        .contents{
+            max-width: 800px;
+        }
 }
