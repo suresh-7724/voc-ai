@@ -511,7 +511,7 @@
         let foreignDir = "FR";
         let nativeDir = "EN";
         let currentAudioIndex = 1;
-        let currentDir = nativeDir;
+        let currentDir = foreignDir;
         let textSize = 16; // Initial text size
         let audioStopped = false;
         let audioPlayer = document.getElementById("audio-player");
@@ -600,6 +600,7 @@
         function loadPlayerSettings() {
             if (currentDir == nativeDir) {
                 currentDir = foreignDir
+                currentAudioIndex++;
                 if (!foreignAudioPlay) {
                     muteAudio();
                 } else {
@@ -608,7 +609,6 @@
                 }
             } else if (currentDir == foreignDir) {
                 currentDir = nativeDir
-                currentAudioIndex++;
                 if (!nativeAudioPlay) {
                     muteAudio();
                 } else {
@@ -744,7 +744,7 @@
 
                 container.appendChild(originalParagraph);
                 container.appendChild(translatedParagraph);
-                $(".original").eq(0).addClass("highlight");
+                $(".translated").eq(0).addClass("highlight");
 
             });
         }
