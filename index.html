@@ -227,14 +227,17 @@
                         <div class="col-12 d-flex justify-content-between">
                             <div class="col-11 d-flex justify-content-center align-items-center">
                                 <h5 class="title ms-2 mb-0">Translated Results</h5>
-                                <button id="myElement">elel</button>
                             </div>
                             <div class="col-1 d-flex justify-content-end align-items-center ">
                                 <button type="button" class="btn m-0" data-bs-toggle="modal"
                                     data-bs-target="#exampleModal">
                                     <i class="fa-solid fa-gear"></i>
                                 </button>
-                                <i class="fa-solid fa-heart text-danger"></i>
+                                <div class="mx-2">
+
+                                    <i id="open-saved-button" class="fa-solid fa-heart text-danger" data-bs-toggle="modal"
+                                        data-bs-target="#wordPairModal"></i>
+                                </div>
 
                             </div>
                         </div>
@@ -505,6 +508,39 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="wordPairModal" tabindex="-1" aria-labelledby="wordPairModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="wordPairModalLabel">Saved Words</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="" class="modal-body">
+                    <div class="row">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Word</th>
+                                    <th scope="col">Native Word</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="saved_words_body" > 
+                     
+                             
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"
         integrity="sha512-ykZ1QQr0Jy/4ZkvKuqWn4iF3lqPZyij9iRv6sGqLRdTPkY69YX6+7wvVGmsdBbiIfN/8OdsI7HABjvEok6ZopQ=="
@@ -563,6 +599,31 @@
 
                 }, phrase_speed);
                 // loadAudioPlayer()
+            })
+            $("#open-saved-button").click(function(){
+                       let sessionJson = sessionStorage.getItem("saved_list");
+
+                // Check if sessionStorage has "saved_list" item
+                if (!sessionJson) {
+                    // If not there, create an empty array and store it
+                    sessionJson = "[]";
+                    sessionStorage.setItem("saved_list", sessionJson);
+                }
+
+                sessionJson = JSON.parse(sessionJson);
+                let i=1;
+                let trElem="";
+                sessionJson.forEach(element => {
+                    trElem+=`<tr>
+                                    <th scope="row">${i}</th>
+                                    <td>${element.word}</td>
+                                    <td>${element.nativeWord}</td>
+                                    <td><a onclick="removeSaved(${i})" href="javascript:void(0)">Remove</a></td>
+                                </tr>
+                                `                    
+                                i++;
+                });                
+                $("#saved_words_body").html(trElem)
             })
         })
         $("#native_text_size").change(() => {
@@ -1185,13 +1246,13 @@
             var children = $(nativePara).find('[data-word-id="' + dataId + '"][data-word-type="O"]').text();
             storeWords(word, children, dataId, parentDataId)
             $(event.target).addClass("saved")
-            $(event.target).after('<i class="fa-solid fa-heart text-danger" id=' + dataId + dataType + ' ></i>');
+            $(event.target).after('<i class="fa-solid fa-heart text-danger"  id=' + dataId + dataType + ' ></i>');
             setTimeout(() => {
                 $("#" + dataId + dataType).remove()
             }, 1000);
         }
         function storeWords(word, nativeWord, dataId, dataParentId) {
-     let wordJson = {  // Assuming wordJson represents a single object
+            let wordJson = {  // Assuming wordJson represents a single object
                 word: word,
                 nativeWord: nativeWord,
                 dataId: dataId,
@@ -1226,7 +1287,7 @@
                 sessionStorage.setItem("saved_list", JSON.stringify(sessionJson));  // Update storage
             }
 
-            
+
         }
         async function handleWordSelection(event) {
             // Pause the audio if it's playing
