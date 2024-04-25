@@ -522,9 +522,10 @@
             loadPlayerSettings()
             // loadAudioPlayer();
             audioPlayer.addEventListener("ended", function () {
-
+                    loadPlayerSettings()
+                    loadAudioPlayer()
                 // loadAudioPlayer()
-                // audioPlayer.play()
+                audioPlayer.play()
             })
         })
 
@@ -535,22 +536,34 @@
 
         }
         function loadPlayerSettings() {
-            if ((currentDir == nativeDir) && foreignAudioPlay) {
+            if (currentDir == nativeDir) {
                 currentDir = foreignDir
                 if (!foreignAudioPlay) {
-                    // currentAudioIndex++;
+                    muteAudio();
+                }else{
+                    unMuteAudio();
+                    
                 }
-            } else if ((currentDir == foreignDir) && nativeAudioPlay) {
+            } else if (currentDir == foreignDir) {
                 currentDir = nativeDir
-                // currentAudioIndex++;
+                currentAudioIndex++;
+                if (!nativeAudioPlay) {
+                    muteAudio();
+                }else{
+
+                    unMuteAudio();
+                }
             }
-            let audioUrl = audioResourceUrl + "/" + currentDir + "/" + currentAudioIndex + ".wav";
-
-            console.log(audioUrl);
-
+            
+        }
+        function muteAudio(){
+            audioPlayer.muted=true;
+        }
+        function unMuteAudio(){
+            audioPlayer.muted=false;
         }
         function playAudio() {
-
+            audioPlayer.play()
         }
         $("#native_audio_switch").click(() => {
             if (nativeAudioPlay == true) {
@@ -740,15 +753,17 @@
             audioPlayer.currentTime += seconds;
         }
         function togglePlayPause() {
+        
             const audioPlayer = document.getElementById("audio-player");
             const playPauseBtn = document.getElementById("play-pause-btn");
             if (audioPlayer.paused || audioPlayer.ended) {
+                loadAudioPlayer()
                 audioPlayer.play();
-                playPauseBtn.innerHTML = "&#10074;&#10074;"; // Pause symbol
+                playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>'; // Pause symbol
                 audioStopped = false;
             } else {
                 audioPlayer.pause();
-                playPauseBtn.innerHTML = "&#9658;"; // Play symbol
+                playPauseBtn.innerHTML = '<i class="fa-regular fa-circle-play"></i>'; // Play symbol
                 audioStopped = false;
             }
         }
