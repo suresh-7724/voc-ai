@@ -589,7 +589,7 @@
                     $(".translated_para").removeClass("highlight");
                     if (currentDir == nativeDir) {
                         $(".translated_para").eq([currentAudioIndex - 1]).addClass("highlight")
-                        
+
                         audioPlayer.playbackRate = nativeAudioSpeed
                     } else if (currentDir == foreignDir) {
                         $(".original_para").eq(currentAudioIndex - 1).addClass("highlight");
@@ -604,16 +604,39 @@
                 showSavedWordsTable();
             })
 
-
         })
+        function highlightSavedWords() {
+            let sessionJson = sessionStorage.getItem("saved_list");
+
+            // Check if sessionStorage has "saved_list" item
+            if (!sessionJson) {
+                // If not there, create an empty array and store it
+                sessionJson = "[]";
+                sessionStorage.setItem("saved_list", sessionJson);
+            }
+
+            sessionJson = JSON.parse(sessionJson);
+            sessionJson.forEach(element => {
+                if (element == null) return;
+                
+                var nativePara = $('[data-id="' + element.dataParentId + '"][data-type="O"]');
+                console.log(nativePara);
+                
+                var children = $(nativePara).find('[data-word-id="' + element.dataId + '"][data-word-type="O"]').addClass("saved");
+                console.log(children);
+
+            });
+        }
         function removeSaved(index) {
             let sessionJson = sessionStorage.getItem("saved_list");
             sessionJson = JSON.parse(sessionJson);
-            sessionJson.splice(index-1, 1);
+            sessionJson.splice(index - 1, 1);
 
             sessionJson = JSON.stringify(sessionJson);
             sessionStorage.setItem("saved_list", sessionJson);
             showSavedWordsTable()
+            $("span").removeClass("saved")
+            highlightSavedWords()
         }
         function showSavedWordsTable() {
 
@@ -695,7 +718,7 @@
                     muteAudio();
                 } else {
                     unMuteAudio();
-                    
+
                 }
             } else if (currentDir == foreignDir) {
                 currentDir = nativeDir
@@ -823,7 +846,7 @@
                     const span = document.createElement("span");
                     span.textContent = word;
                     span.classList.add("original", "word-link", "word-click");
-                   
+
                     span.setAttribute("data-word-id", wordIndex)
                     span.setAttribute("data-word-type", "O")
                     // span.addEventListener("click", handleWordSelection);
@@ -846,8 +869,8 @@
                     const span = document.createElement("span");
                     span.textContent = word;
                     span.classList.add("translated", "word-link");
-                span.setAttribute("data-word-id", wordIndex)
-                    span.setAttribute("data-word-type", "O")
+                    span.setAttribute("data-word-id", wordIndex)
+                    span.setAttribute("data-word-type", "T")
                     // span.addEventListener("click", handleWordSelection);
                     translatedParagraph.appendChild(span);
                     translatedParagraph.appendChild(document.createTextNode(" "));
@@ -880,6 +903,7 @@
                     handleWordSelection(event)
                 }
             });
+            highlightSavedWords()
 
         }
 
@@ -1259,7 +1283,7 @@
             let parentDataId = $(event.target).parent().attr("data-id");
             let dataType = $(event.target).attr("data-type");
             var nativePara = $('[data-id="' + parentDataId + '"][data-type="T"]');
-            var children = $(nativePara).find('[data-word-id="' + dataId + '"][data-word-type="O"]').text();
+            var children = $(nativePara).find('[data-word-id="' + dataId + '"][data-word-type="T"]').text();
             storeWords(word, children, dataId, parentDataId)
             $(event.target).addClass("saved")
             $(event.target).after('<i class="fa-solid fa-heart text-danger"  id=' + dataId + dataType + ' ></i>');
