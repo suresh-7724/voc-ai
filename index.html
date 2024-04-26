@@ -561,7 +561,8 @@
         let nativeAudioSpeed = 1;
         let foreignAudioSpeed = 1;
         let doubleClickDelay = 250; // Adjust as needed
-
+       var audioFiles = [];
+       var audioFileIndex=0;
         // load the audio player
         $(document).ready(function () {
 
@@ -584,21 +585,25 @@
                     }
 
                     loadPlayerSettings()
-                    loadAudioPlayer()
                     $(".original_para").removeClass("highlight");
                     $(".translated_para").removeClass("highlight");
                     if (currentDir == nativeDir) {
                         $(".translated_para").eq([currentAudioIndex - 1]).addClass("highlight")
-
+                        audioPlayer.src = audioFiles[audioFileIndex];
                         audioPlayer.playbackRate = nativeAudioSpeed
+                        audioPlayer.play()
                     } else if (currentDir == foreignDir) {
                         $(".original_para").eq(currentAudioIndex - 1).addClass("highlight");
+                        audioPlayer.src = audioFiles[audioFileIndex];
                         audioPlayer.playbackRate = foreignAudioSpeed
+                        audioPlayer.play()
+                        
                     }
-                    audioPlayer.play()
 
                 }, phrase_speed);
-                // loadAudioPlayer()
+                // currentAudioIndex++;
+                
+                loadAudioPlayer()
             })
             $("#open-saved-button").click(function () {
                 showSavedWordsTable();
@@ -618,9 +623,9 @@
             sessionJson = JSON.parse(sessionJson);
             sessionJson.forEach(element => {
                 if (element == null) return;
-                
+
                 var nativePara = $('[data-id="' + element.dataParentId + '"][data-type="O"]');
-                
+
                 var children = $(nativePara).find('[data-word-id="' + element.dataId + '"][data-word-type="O"]').addClass("saved");
 
             });
@@ -702,14 +707,16 @@
 
         })
         function loadAudioPlayer() {
-            let audioUrl = audioResourceUrl + "/" + currentDir + "/" + currentAudioIndex + ".wav";
-            
-            audioPlayer.src = audioUrl;
+
+            // let audioUrl = audioResourceUrl + "/" + currentDir + "/" + currentAudioIndex + ".wav";
+
+            // audioPlayer.src = audioUrl;
 
         }
         function loadPlayerSettings() {
             if (currentDir == nativeDir) {
                 currentAudioIndex++;
+                audioFileIndex++;
                 currentDir = foreignDir
                 if (!foreignAudioPlay) {
                     muteAudio();
@@ -718,6 +725,8 @@
 
                 }
             } else if (currentDir == foreignDir) {
+                audioFileIndex++;
+
                 currentDir = nativeDir
                 if (!nativeAudioPlay) {
                     muteAudio();
@@ -726,7 +735,7 @@
                     unMuteAudio();
                 }
             }
-            console.log(currentDir);
+            // console.log(currentDir);
 
         }
         function muteAudio() {
@@ -825,7 +834,7 @@
             output.forEach((item) => {
                 const originalText = item.Original;
                 const translatedText = item.Translated;
-
+                
 
                 const originalParagraph = document.createElement("p");
                 const translatedParagraph = document.createElement("p");
@@ -837,7 +846,7 @@
                 translatedParagraph.classList.add("translated_para");
                 const originalWords = originalText.split(" ");
                 const translatedWords = translatedText.split(" ");
-
+                
                 let wordIndex = 0;
                 originalWords.forEach((word) => {
                     const span = document.createElement("span");
@@ -901,7 +910,27 @@
                 }
             });
             highlightSavedWords()
-
+            for (let i = 0; i < output.length; i++) {
+                for (let i = 0; i <= 1; i++) {
+                    let audioUrl = audioResourceUrl + "/" 
+                    if(i==0){
+                        
+                        audioUrl+= foreignDir + "/" + currentAudioIndex + ".wav";
+                    }if(i==1){
+                        audioUrl+= nativeDir + "/" + currentAudioIndex + ".wav";
+                        // audioPlayer.src = audioUrl;
+                    }                    
+                    audioFiles.push(audioUrl)
+                    
+                }                
+                currentAudioIndex++;
+            }       
+             for (var i in audioFiles) {
+                preloadAudio(audioFiles[i]);
+            }     
+            currentAudioIndex=1;    
+            audioPlayer.src=audioFiles[0]
+            
         }
 
         window.onload = function () {
@@ -1359,6 +1388,19 @@
                 audioPlayer.pause();
             }
         }
+
+
+     
+
+
+        function preloadAudio(url) {
+            var audio = new Audio();
+            // once this file loads, it will call loadedAudio()
+            // the file will be kept by the browser as cache
+            audio.src = url;
+        }
+       
+    
     </script>
 
 </body>
