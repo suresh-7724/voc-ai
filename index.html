@@ -381,14 +381,16 @@
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="" checked>
+                                            <input class="form-check-input" type="checkbox" id="native_text_switch"
+                                                checked>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="" checked>
+                                            <input class="form-check-input" type="checkbox" id="foreign_text_switch"
+                                                checked>
                                         </div>
                                     </div>
                                 </div>
@@ -554,18 +556,17 @@
         let textSize = 16; // Initial text size
         let audioStopped = false;
         let audioPlayer = document.getElementById("audio-player");
-        let nativeAudioPlay = true;
-        let foreignAudioPlay = true;
-        let phrase_speed = 400;
-        let native_phrase_speed = 400;
-        let nativeAudioSpeed = 1;
-        let foreignAudioSpeed = 1;
         let doubleClickDelay = 250; // Adjust as needed
-       var audioFiles = [];
-       var audioFileIndex=0;
+        var audioFiles = [];
+        var audioFileIndex = 0;
+        let defaultSettingsObj = {}
         // load the audio player
         $(document).ready(function () {
-
+            if (sessionStorage.getItem("local_settings") && sessionStorage.getItem("local_settings") != "") {
+                setLocalSettings()
+            } else {
+                createLocalSettings()
+            }
             loadAudioPlayer();
             audioPlayer.addEventListener("ended", function () {
                 setTimeout(() => {
@@ -590,19 +591,19 @@
                     if (currentDir == nativeDir) {
                         $(".translated_para").eq([currentAudioIndex - 1]).addClass("highlight")
                         audioPlayer.src = audioFiles[audioFileIndex];
-                        audioPlayer.playbackRate = nativeAudioSpeed
+                        audioPlayer.playbackRate = defaultSettingsObj.native.voiceSpeed
                         audioPlayer.play()
                     } else if (currentDir == foreignDir) {
                         $(".original_para").eq(currentAudioIndex - 1).addClass("highlight");
                         audioPlayer.src = audioFiles[audioFileIndex];
-                        audioPlayer.playbackRate = foreignAudioSpeed
+                        audioPlayer.playbackRate = defaultSettingsObj.foreign.voiceSpeed
                         audioPlayer.play()
-                        
+
                     }
 
-                }, phrase_speed);
+                }, defaultSettingsObj.phraseSpeed);
                 // currentAudioIndex++;
-                
+
                 loadAudioPlayer()
             })
             $("#open-saved-button").click(function () {
@@ -610,6 +611,50 @@
             })
 
         })
+        function createLocalSettings() {
+            let settingsObj = {
+                native: {
+                    audio: true,
+                    text: true,
+                    textSize: "16px",
+                    voiceSpeed: 1.0
+                },
+                foreign: {
+                    audio: true,
+                    text: true,
+                    textSize: "16px",
+                    voiceSpeed: 1.0
+                },
+                phraseSpeed: 400,
+                doubleClickDelay: 250,
+                languageOrder: "Foreign"
+            }
+            defaultSettingsObj = settingsObj;
+            updateLocalSettings()
+        }
+        function setLocalSettings() {
+            let sessionSettings = sessionStorage.getItem("local_settings");
+            sessionSettings = JSON.parse(sessionSettings);
+            defaultSettingsObj = sessionSettings;
+            if (!defaultSettingsObj.native.audio) {
+                $("#native_audio_switch").prop("checked", false);
+            }
+            if (!defaultSettingsObj.foreign.audio) {
+                $("#foreign_audio_switch").prop("checked", false);
+            }
+            if (!defaultSettingsObj.native.text) {
+                $("#native_text_switch").prop("checked", false);
+            }
+            if (!defaultSettingsObj.foreign.text) {
+                $("#foreign_text_switch").prop("checked", false);
+            }
+            $("#native_text_size").val(defaultSettingsObj.native.textSize)
+            $("#foreign_text_size").val(defaultSettingsObj.foreign.textSize)
+
+        }
+        function updateLocalSettings() {
+            sessionStorage.setItem("local_settings", JSON.stringify(defaultSettingsObj))
+        }
         function highlightSavedWords() {
             let sessionJson = sessionStorage.getItem("saved_list");
 
@@ -669,11 +714,16 @@
             $("#saved_words_body").html(trElem)
         }
         $("#native_text_size").change(() => {
-            $(".original_para").css("font-size", $("#native_text_size").val());
+            $(".translated_para").css("font-size", $("#native_text_size").val());
+
+            defaultSettingsObj.native.textSize = $("#native_text_size").val()
+            updateLocalSettings()
         })
         $("#foreign_text_size").change(() => {
 
-            $(".translated_para").css("font-size", $("#foreign_text_size").val());
+            $(".original_para").css("font-size", $("#foreign_text_size").val());
+            defaultSettingsObj.foreign.textSize = $("#foreign_text_size").val()
+            updateLocalSettings()
         })
         function keepHighlightVisible() {
             const element = document.querySelector('.highlight'); // Get the element with the "highlight" class
@@ -694,17 +744,17 @@
             }
         }
         $("#phrase_select").change(function () {
-            phrase_speed = parseInt($("#phrase_select").val())
-
+            defaultSettingsObj.phraseSpeed = parseInt($("#phrase_select").val())
+            updateLocalSettings()
         })
         $("#foreign_audio_speed").change(function () {
-            foreignAudioSpeed = parseFloat($("#foreign_audio_speed").val());
-
+            defaultSettingsObj.foreign.voiceSpeed = parseFloat($("#foreign_audio_speed").val());
+            updateLocalSettings()
 
         })
         $("#native_audio_speed").change(function () {
-            nativeAudioSpeed = parseFloat($("#native_audio_speed").val());
-
+            defaultSettingsObj.native.voiceSpeed = parseFloat($("#native_audio_speed").val());
+            updateLocalSettings()
         })
         function loadAudioPlayer() {
 
@@ -718,7 +768,7 @@
                 currentAudioIndex++;
                 audioFileIndex++;
                 currentDir = foreignDir
-                if (!foreignAudioPlay) {
+                if (!defaultSettingsObj.foreign.audio) {
                     muteAudio();
                 } else {
                     unMuteAudio();
@@ -728,7 +778,7 @@
                 audioFileIndex++;
 
                 currentDir = nativeDir
-                if (!nativeAudioPlay) {
+                if (!defaultSettingsObj.native.audio) {
                     muteAudio();
                 } else {
 
@@ -748,20 +798,23 @@
             audioPlayer.play()
         }
         $("#native_audio_switch").click(() => {
-            if (nativeAudioPlay == true) {
-                nativeAudioPlay = false
-            } else if (nativeAudioPlay == false) {
-                nativeAudioPlay = true;
+            if (defaultSettingsObj.native.audio == true) {
+                defaultSettingsObj.native.audio = false
+            } else if (defaultSettingsObj.native.audio == false) {
+                defaultSettingsObj.native.audio = true;
             }
+            updateLocalSettings()
             loadPlayerSettings()
 
         });
         $("#foreign_audio_switch").click(() => {
-            if (foreignAudioPlay == true) {
-                foreignAudioPlay = false
-            } else if (foreignAudioPlay == false) {
-                foreignAudioPlay = true;
+            if (defaultSettingsObj.foreign.audio == true) {
+                defaultSettingsObj.foreign.audio = false
+            } else if (defaultSettingsObj.foreign.audio == false) {
+                defaultSettingsObj.foreign.audio = true;
             }
+            updateLocalSettings()
+
             loadPlayerSettings()
 
         });
@@ -834,7 +887,7 @@
             output.forEach((item) => {
                 const originalText = item.Original;
                 const translatedText = item.Translated;
-                
+
 
                 const originalParagraph = document.createElement("p");
                 const translatedParagraph = document.createElement("p");
@@ -846,7 +899,7 @@
                 translatedParagraph.classList.add("translated_para");
                 const originalWords = originalText.split(" ");
                 const translatedWords = translatedText.split(" ");
-                
+
                 let wordIndex = 0;
                 originalWords.forEach((word) => {
                     const span = document.createElement("span");
@@ -900,7 +953,7 @@
                         // Single click action
                         addTofavorite(event)
                         singleClickTimer = null;
-                    }, doubleClickDelay);
+                    }, defaultSettingsObj.doubleClickDelay);
                 } else {
                     // Prevent single click action
                     clearTimeout(singleClickTimer);
@@ -912,25 +965,27 @@
             highlightSavedWords()
             for (let i = 0; i < output.length; i++) {
                 for (let i = 0; i <= 1; i++) {
-                    let audioUrl = audioResourceUrl + "/" 
-                    if(i==0){
-                        
-                        audioUrl+= foreignDir + "/" + currentAudioIndex + ".wav";
-                    }if(i==1){
-                        audioUrl+= nativeDir + "/" + currentAudioIndex + ".wav";
+                    let audioUrl = audioResourceUrl + "/"
+                    if (i == 0) {
+
+                        audioUrl += foreignDir + "/" + currentAudioIndex + ".wav";
+                    } if (i == 1) {
+                        audioUrl += nativeDir + "/" + currentAudioIndex + ".wav";
                         // audioPlayer.src = audioUrl;
-                    }                    
+                    }
                     audioFiles.push(audioUrl)
-                    
-                }                
+
+                }
                 currentAudioIndex++;
-            }       
-             for (var i in audioFiles) {
+            }
+            for (var i in audioFiles) {
                 preloadAudio(audioFiles[i]);
-            }     
-            currentAudioIndex=1;    
-            audioPlayer.src=audioFiles[0]
-            
+            }
+            currentAudioIndex = 1;
+            audioPlayer.src = audioFiles[0]
+            $(".original_para").css("font-size", defaultSettingsObj.foreign.textSize);
+            $(".translated_para").css("font-size", defaultSettingsObj.native.textSize);
+
         }
 
         window.onload = function () {
@@ -1390,7 +1445,7 @@
         }
 
 
-     
+
 
 
         function preloadAudio(url) {
@@ -1399,8 +1454,8 @@
             // the file will be kept by the browser as cache
             audio.src = url;
         }
-       
-    
+
+
     </script>
 
 </body>
