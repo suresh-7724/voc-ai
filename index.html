@@ -642,6 +642,24 @@
             })
 
         })
+        function getTotalDurationWithAlternatingRates(audioFiles, playbackRate1, playbackRate2, delayBetweenAudios) {
+            // Calculate total duration accounting for playback rate and delay
+            const totalDuration = audioFiles.reduce((total, audio, index) => {
+                // Determine the playback rate based on the index
+                const playbackRate = index % 2 === 0 ? playbackRate1 : playbackRate2;
+
+                // Adjust the duration based on the playback rate
+                const adjustedDuration = audio.duration / playbackRate;
+
+                // Calculate the delay before this audio starts
+                const delayBeforeStart = index * delayBetweenAudios;
+
+                // Add the adjusted duration plus the delay before start
+                return total + adjustedDuration + (delayBeforeStart / 1000); // convert delay to seconds
+            }, 0);
+
+            return totalDuration;
+        }
         function createLocalSettings() {
             let settingsObj = {
                 native: {
@@ -860,40 +878,7 @@
 
         });
 
-        // $(".word-link").dblclick(()=>{
-        //     console.log('double inn');
-
-        // })
-        // document
-        //     .getElementById("audio-input")
-        //     .addEventListener("change", function (event) {
-        //         const file = event.target.files[0];
-        //         if (file) {
-        //             document.getElementById("audio-file-name").textContent = file.name;
-        //             const audioPlayer = document.getElementById("audio-player");
-        //             audioPlayer.src = URL.createObjectURL(file);
-        //         }
-        //     });
-
-        // document
-        //     .getElementById("file-input")
-        //     .addEventListener("change", function (event) {
-        //         const file = event.target.files[0];
-        //         if (file) {
-        //             document.getElementById("file-name").textContent = file.name;
-        //             const reader = new FileReader();
-        //             reader.onload = function (e) {
-        //                 const content = e.target.result;
-        //                 try {
-        //                     const data = JSON.parse(content);
-        //                     processData(data);
-        //                 } catch (error) {
-        //                     console.error("Error parsing JSON:", error);
-        //                 }
-        //             };
-        //             reader.readAsText(file);
-        //         }
-        //     });
+   
         function processData(data) {
             let translations = [];
 
@@ -1026,7 +1011,7 @@
             audioPlayer.src = audioFiles[0]
             $(".original_para").css("font-size", defaultSettingsObj.foreign.textSize);
             $(".translated_para").css("font-size", defaultSettingsObj.native.textSize);
-
+            
         }
 
         window.onload = function () {
@@ -1159,67 +1144,7 @@
                 console.error(error);
             }
         }
-        // async function getHoveredResult(Word) {
-
-
-
-        //     const myHeaders = new Headers();
-        //     myHeaders.append("Content-Type", "application/json");
-        //     myHeaders.append("Accept", "application/json");
-        //     myHeaders.append(
-        //         "Authorization",
-        //         "Bearer sk-proj-ZEUmeKUDmZ8JSC5SEVb2T3BlbkFJDguqKfw6KmucFqzzIeOV"
-        //     );
-
-        //     const raw = JSON.stringify({
-        //         model: "gpt-3.5-turbo",
-        //         messages: [
-        //             {
-        //                 role: "user",
-        //                 content:
-        //                     "you are an expert linguist and tutor of languages. We want to help english speakers learn foriegn words. I'll provide a foriegn word, and context and you provide me with the following:\n1. Literal translation of that word. If the translation within the context is different than the literal translation then add that as well. No more than 50 charachters.\n2. example for using this word in a sentence. no more than 50 charachters.\n3. If the word is a verb, conjugations for all relevant aspects \n4. three suggestions how an English speaker should memorize that word using word associaltions. response json , use memorization_tips as a key only,Given Word: " +
-        //                     Word,
-        //             },
-        //         ],
-        //         temperature: 1,
-        //         top_p: 1,
-        //         n: 1,
-        //         stream: false,
-        //         max_tokens: 250,
-        //         presence_penalty: 0,
-        //         frequency_penalty: 0,
-        //     });
-
-        //     const requestOptions = {
-        //         method: "POST",
-        //         headers: myHeaders,
-        //         body: raw,
-        //         redirect: "follow",
-        //     };
-
-        //     try {
-        //         const response = await fetch(
-        //             "https://api.openai.com/v1/chat/completions",
-        //             requestOptions
-        //         );
-        //         const data = await response.json();
-        //         if (data.choices && data.choices.length > 0) {
-        //             let content = data.choices[0].message.content;
-        //             // Add newline character after each numbered line
-
-        //             console.log(content); // Logging the modified content to the console
-        //             return content; // Return the modified content
-        //         } else {
-        //             // Handle the case where no choices are returned
-        //             console.log("No choices available in the response");
-        //             return "No response received.";
-        //         }
-        //     } catch (error) {
-        //         console.error(error);
-        //         return `Error: ${error}`; // Return error information for debugging
-        //     }
-        // }
-        // // Function to remove the tooltip
+ 
         function removeTooltip() {
             const tooltip = document.getElementById("tooltip");
             if (tooltip) {
@@ -1233,17 +1158,7 @@
 
                 window.scrollBy(0, 210);
             }
-            // Clean up each part
 
-            // Remove the empty first element
-
-            // Output the separated parts
-            // parts.forEach((element, index) => {
-            //     parts[index].replace("Literal translation:", "")
-            //     parts[index].replace("Example:", "")
-            //     parts[index].replace("Conjugations: ", "")
-            //     parts[index].replace("Word associations:", "")
-            // });
             let result = JSON.parse(hoveredResult)
             console.log(result);
 
@@ -1295,68 +1210,7 @@
 
 
             return;
-            // Remove the previous tooltip if it exists
-            // removeTooltip();
-
-            // // Create a new tooltip element
-            // const tooltip = document.createElement("div");
-            // tooltip.innerHTML = `<span class="close-btn" onclick="closeTooltip()">×</span>${hoveredResult.replace(
-            //     /\n/g,
-            //     "<br>"
-            // )}`;
-            // tooltip.classList.add("tooltip");
-            // tooltip.id = "tooltip"; // Set an id for easy access
-            // tooltip.classList.add("tooltip"); // Add tooltip class
-            // tooltip.style.position = "fixed";
-            // tooltip.style.top = y - tooltip.offsetHeight - 5 + "px";
-            // tooltip.style.left = x + "px";
-            // tooltip.style.width = "80%"; // Set width
-            // tooltip.style.height = "80vh"; // Set height (80% of viewport height)
-            // tooltip.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
-            // tooltip.style.padding = "5px";
-            // tooltip.style.border = "1px solid #ccc";
-            // tooltip.style.borderRadius = "5px";
-            // tooltip.style.zIndex = "9999";
-            // tooltip.style.maxHeight = "200px"; // Limit the maximum height
-            // tooltip.style.overflowY = "auto"; // Enable vertical scrolling
-
-            // // Append the tooltip to the body
-            // document.body.appendChild(tooltip);
-
-            // // Show the tooltip
-            // tooltip.style.display = "block";
-
-            // // Adjust the position of the tooltip to ensure it stays within the bounds of the .container div
-            // const tooltipWidth = tooltip.offsetWidth;
-            // const tooltipHeight = tooltip.offsetHeight;
-            // const containerRect = document
-            //     .querySelector(".container")
-            //     .getBoundingClientRect();
-            // const containerLeft = containerRect.left;
-            // const containerRight = containerRect.right;
-
-            // // Calculate the position of the tooltip relative to the clicked word
-            // let tooltipX = x - tooltipWidth / 2;
-            // let tooltipY = y - tooltipHeight / 2;
-
-            // // Ensure the tooltip stays within the boundaries of the .container div
-            // if (tooltipX < containerLeft) {
-            //     tooltipX = containerLeft;
-            // } else if (tooltipX + tooltipWidth > containerRight) {
-            //     tooltipX = containerRight - tooltipWidth;
-            // }
-
-            // // Set the tooltip position
-            // tooltip.style.left = `${tooltipX}px`;
-            // tooltip.style.top = `${tooltipY}px`;
-
-            // // Check if the tooltip content exceeds its height and add scrollbar if needed
-            // if (tooltip.scrollHeight > tooltip.clientHeight) {
-            //     tooltip.style.overflowY = "auto";
-            // }
-
-            // // Add event listener to remove the tooltip when clicking anywhere on the page
-            // document.addEventListener("click", removeTooltipOnClick);
+          
         }
 
         function removeTooltipOnClick(event) {
@@ -1488,14 +1342,22 @@
 
 
 
+    function preloadAudio(url) {
+        const audio = new Audio();
+        audio.preload = 'auto'; // Set preload to auto for caching
 
-        function preloadAudio(url) {
-            var audio = new Audio();
-            // once this file loads, it will call loadedAudio()
-            // the file will be kept by the browser as cache
-            audio.src = url;
-        }
+        audio.addEventListener('loadeddata', () => {
+            console.log('Audio loaded successfully:', url);
+        });
 
+        audio.addEventListener('error', () => {
+            console.error('Error loading audio:', url);
+            // You can handle specific errors here (e.g., check for network errors)
+        });
+
+        audio.src = url;
+        audio.load(); // Start loading the audio
+    }
 
     </script>
 
