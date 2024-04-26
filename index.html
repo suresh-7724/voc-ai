@@ -480,7 +480,7 @@
                                             Double click sensitivity
                                         </label>
                                         <select id="double_click_select" class="form-select  form-select-sm">
-                                            <option value="300" >Low (slow)</option>
+                                            <option value="300">Low (slow)</option>
                                             <option value="250">Medium</option>
                                             <option value="100">High</option>
                                         </select>
@@ -560,6 +560,33 @@
         var audioFiles = [];
         var audioFileIndex = 0;
         let defaultSettingsObj = {}
+
+        function isElementAtBottom(elementClass) {
+            const element = document.querySelector(`.${elementClass}`);
+            if (!element) {
+                return false; // Element not found
+            }
+
+            const rect = element.getBoundingClientRect();
+            const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+            return (rect.bottom + window.scrollY) >= windowHeight;
+        }
+
+
+        function isElementAtBottom(className) {
+            var element = $(className);
+            if (element.length) {
+                var elementOffset = element.offset().top;
+                var elementHeight = element.outerHeight();
+                var viewportHeight = $(window).height();
+                var scrollHeight = $(document).scrollTop();
+
+                return (elementOffset + 100 < (scrollHeight + viewportHeight) && (elementOffset + elementHeight) > scrollHeight);
+            }
+            return false;
+        }
+
+
         // load the audio player
         $(document).ready(function () {
             if (sessionStorage.getItem("local_settings") && sessionStorage.getItem("local_settings") != "") {
@@ -570,20 +597,10 @@
             loadAudioPlayer();
             audioPlayer.addEventListener("ended", function () {
                 setTimeout(() => {
-                    var element = $('.highlight');
-                    var yPos = element.offset().top;
+                    // Example usage:
 
-                    var windowHeight = $(window).height();
 
-                    // Calculate the scroll position to center the element vertically
-                    var newScrollTop = yPos - (windowHeight / 2) + (element.outerHeight() / 2) - 200;
 
-                    // Animate scrolling to the new position
-                    if (currentDir == nativeDir) {
-                        $('html, body').animate({
-                            scrollTop: newScrollTop
-                        }, 100);
-                    }
 
                     loadPlayerSettings()
                     $(".original_para").removeClass("highlight");
@@ -602,8 +619,22 @@
                     }
 
                 }, defaultSettingsObj.phraseSpeed);
-                // currentAudioIndex++;
 
+
+                var element = $('.highlight');
+                var yPos = element.offset().top;
+
+                var windowHeight = $(window).height();
+
+                // Calculate the scroll position to center the element vertically
+                var newScrollTop = yPos - (windowHeight / 2) + (element.outerHeight() / 2) + 250;
+                // currentAudioIndex++;
+                if (!isElementAtBottom('.highlight')) {
+                    $('html, body').animate({
+                        scrollTop: newScrollTop
+                    }, 100);
+                    // Do something when the element is at the bottom
+                }
                 loadAudioPlayer()
             })
             $("#open-saved-button").click(function () {
