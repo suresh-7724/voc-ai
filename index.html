@@ -402,24 +402,24 @@
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
                                         <select id="native_text_size" class="form-select  form-select-sm">
-                                            <option value="10px">Very Small</option>
-                                            <option value="12px">Small</option>
-                                            <option selected value="16px">Medium</option>
-                                            <option value="20px">Large</option>
-                                            <option value="24px">Very Large</option>
-                                            <option value="30px">Huge</option>
+                                            <option value="8px">Very Small</option>
+                                            <option value="10px">Small</option>
+                                            <option selected value="12px">Medium</option>
+                                            <option value="24px">Large</option>
+                                            <option value="28px">Very Large</option>
+                                            <option value="32px">Huge</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group mb-3 d-flex justify-content-center">
                                         <select id="foreign_text_size" class="form-select  form-select-sm">
-                                            <option value="10px">Very Small</option>
-                                            <option value="12px">Small</option>
-                                            <option selected value="16px">Medium</option>
-                                            <option value="20px">Large</option>
-                                            <option value="24px">Very Large</option>
-                                            <option value="30px">Huge</option>
+                                            <option value="8px">Very Small</option>
+                                            <option value="10px">Small</option>
+                                            <option selected value="12px">Medium</option>
+                                            <option value="24px">Large</option>
+                                            <option value="28px">Very Large</option>
+                                            <option value="32px">Huge</option>
                                         </select>
                                     </div>
                                 </div>
@@ -479,10 +479,10 @@
                                         <label class="form-label mx-2  text-sm">
                                             Double click sensitivity
                                         </label>
-                                        <select class="form-select  form-select-sm">
-                                            <option>Low (slow)</option>
-                                            <option value="2">Medium</option>
-                                            <option value="3">High</option>
+                                        <select id="double_click_select" class="form-select  form-select-sm">
+                                            <option value="300" >Low (slow)</option>
+                                            <option value="250">Medium</option>
+                                            <option value="100">High</option>
                                         </select>
                                     </div>
                                 </div>
@@ -493,9 +493,9 @@
                                         <label class="form-label   text-sm">
                                             Language Order
                                         </label>
-                                        <select class="form-select  form-select-sm">
-                                            <option value="3">Native First</option>
-                                            <option value="1">Foreign First</option>
+                                        <select id="language_order_select" class="form-select  form-select-sm">
+                                            <option value="native">Native First</option>
+                                            <option value="foreign">Foreign First</option>
                                         </select>
                                     </div>
                                 </div>
@@ -616,13 +616,13 @@
                 native: {
                     audio: true,
                     text: true,
-                    textSize: "16px",
+                    textSize: "12px",
                     voiceSpeed: 1.0
                 },
                 foreign: {
                     audio: true,
                     text: true,
-                    textSize: "16px",
+                    textSize: "12px",
                     voiceSpeed: 1.0
                 },
                 phraseSpeed: 400,
@@ -650,7 +650,9 @@
             }
             $("#native_text_size").val(defaultSettingsObj.native.textSize)
             $("#foreign_text_size").val(defaultSettingsObj.foreign.textSize)
-
+            $("#phrase_select").val(defaultSettingsObj.phraseSpeed)
+            $("#double_click_select").val(defaultSettingsObj.doubleClickDelay)
+            $("#language_order_select").val(defaultSettingsObj.languageOrder)
         }
         function updateLocalSettings() {
             sessionStorage.setItem("local_settings", JSON.stringify(defaultSettingsObj))
@@ -745,6 +747,14 @@
         }
         $("#phrase_select").change(function () {
             defaultSettingsObj.phraseSpeed = parseInt($("#phrase_select").val())
+            updateLocalSettings()
+        })
+        $("#double_click_select").change(function () {
+            defaultSettingsObj.doubleClickDelay = parseInt($("#double_click_select").val())
+            updateLocalSettings()
+        })
+        $("#language_order_select").change(function () {
+            defaultSettingsObj.languageOrder = $("#language_order_select").val();
             updateLocalSettings()
         })
         $("#foreign_audio_speed").change(function () {
