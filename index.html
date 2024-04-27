@@ -241,7 +241,19 @@
 
                             </div>
                         </div>
-                        <audio controls id="audio-player" controlsList="nodownload noplaybackrate"></audio>
+                        <div class="audio-wrapper">
+
+                            <audio id="audio-player" controls="false" controlsList="nodownload noplaybackrate"></audio>
+                            <div class="audio_overlay"></div>
+                        </div>
+                        <!-- <input type="text" name="" id="original_position" value=""> -->
+                        <div class="col-12 ms-4">
+
+                            <div class="progress">
+                                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;"
+                                    aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
                         <div class="rewind-icons p-2">
                             <!-- <button onclick="rewindAudio(-5)"><i class="fa-solid fa-backward-fast"></i><i
                                     class="fa-solid fa-backward-step" style="margin-left: -3px;"></i></button> -->
@@ -549,6 +561,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         let audioResourceUrl = "https://voc-ai.vercel.app/jake";
+        // let audioResourceUrl = "http://localhost/voc-chatgpt/jake";
         let foreignDir = "FR";
         let nativeDir = "EN";
         let currentAudioIndex = 1;
@@ -558,9 +571,48 @@
         let audioPlayer = document.getElementById("audio-player");
         let doubleClickDelay = 250; // Adjust as needed
         var audioFiles = [];
+        var nativeDurInfo = {};
+        var foreignDurInfo = {};
         var audioFileIndex = 0;
-        let defaultSettingsObj = {}
+        let defaultSettingsObj = {};
+        let totalAudioDuration = 0;
+        let remainingAudioDuration = 0;
+        let audioPlaying = false;
+        audioPlayer.src = audioResourceUrl + "/" + nativeDir + "/" + currentAudioIndex + ".wav"
+        setInterval(() => {
 
+            if (!audioPlayer.paused) {
+                remainingAudioDuration -= 1;
+                let percentage = remainingAudioDuration / totalAudioDuration * 100
+                let width = parseFloat(100 - percentage)
+                $("#progressBar").css("width", width + "%")
+                console.log(percentage);
+
+                console.log(remainingAudioDuration);
+                // console.log('second');
+            }
+            else {
+                console.log('rest');
+
+            }
+        }, 1000);
+
+
+        function startProgress() {
+
+            // This event will be triggered every second during playback
+            let remainingTime = remainingAudioDuration - audioPlayer.currentTime;
+            remainingAudioDuration -= audioPlayer.currentTime;
+            let percentage = (remainingTime / totalAudioDuration) * 100;
+            let width = 100 - percentage;
+            // $("#progressBar").text(width+"%")
+            $("#progressBar").css("width", width + "%");
+            console.log(remainingTime);
+            console.log(width);
+
+        }
+
+        // You can put your desired code here
         function isElementAtBottom(elementClass) {
             const element = document.querySelector(`.${elementClass}`);
             if (!element) {
@@ -642,24 +694,7 @@
             })
 
         })
-        function getTotalDurationWithAlternatingRates(audioFiles, playbackRate1, playbackRate2, delayBetweenAudios) {
-            // Calculate total duration accounting for playback rate and delay
-            const totalDuration = audioFiles.reduce((total, audio, index) => {
-                // Determine the playback rate based on the index
-                const playbackRate = index % 2 === 0 ? playbackRate1 : playbackRate2;
 
-                // Adjust the duration based on the playback rate
-                const adjustedDuration = audio.duration / playbackRate;
-
-                // Calculate the delay before this audio starts
-                const delayBeforeStart = index * delayBetweenAudios;
-
-                // Add the adjusted duration plus the delay before start
-                return total + adjustedDuration + (delayBeforeStart / 1000); // convert delay to seconds
-            }, 0);
-
-            return totalDuration;
-        }
         function createLocalSettings() {
             let settingsObj = {
                 native: {
@@ -878,7 +913,7 @@
 
         });
 
-   
+
         function processData(data) {
             let translations = [];
 
@@ -1011,7 +1046,21 @@
             audioPlayer.src = audioFiles[0]
             $(".original_para").css("font-size", defaultSettingsObj.foreign.textSize);
             $(".translated_para").css("font-size", defaultSettingsObj.native.textSize);
-            
+
+            let totalNativeDuration = 0;
+            for (let key in nativeDurInfo) {
+                totalNativeDuration += (nativeDurInfo[key] * defaultSettingsObj.native.voiceSpeed) + (defaultSettingsObj.phraseSpeed / 1000);
+            }
+            totalNativeDuration -= (defaultSettingsObj.phraseSpeed / 1000)
+
+            let totalForeignDuration = 0;
+            for (let key in foreignDurInfo) {
+                totalForeignDuration += (foreignDurInfo[key] * defaultSettingsObj.foreign.voiceSpeed) + (defaultSettingsObj.phraseSpeed / 1000);
+            }
+            totalForeignDuration -= (defaultSettingsObj.phraseSpeed / 1000)
+
+            totalAudioDuration = parseInt(totalForeignDuration + totalNativeDuration)
+            remainingAudioDuration = totalAudioDuration;
         }
 
         window.onload = function () {
@@ -1048,8 +1097,37 @@
                     return response.json();
                 })
                 .then((data) => {
+
+                    fetch(audioResourceUrl + "/" + nativeDir + ".json")
+                        .then((response) => {
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+                            return response.json();
+                        })
+                        .then((nativeDurationInfo) => {
+                            // Process the JSON data
+                            fetch(audioResourceUrl + "/" + foreignDir + ".json")
+                                .then((response) => {
+                                    if (!response.ok) {
+                                        throw new Error("Network response was not ok");
+                                    }
+                                    return response.json();
+                                })
+                                .then((foreignDurationInfo) => {
+                                    // Process the JSON data
+                                    foreignDurInfo = foreignDurationInfo
+                                    nativeDurInfo = nativeDurationInfo
+                                    displayText(data.record.output);
+                                })
+                                .catch((error) => {
+                                    console.error("Error loading JSON from URL:", error);
+                                });
+                        })
+                        .catch((error) => {
+                            console.error("Error loading JSON from URL:", error);
+                        });
                     // Process the JSON data
-                    displayText(data.record.output);
                 })
                 .catch((error) => {
                     console.error("Error loading JSON from URL:", error);
@@ -1099,24 +1177,7 @@
                 audioStopped = false;
             }
         }
-        // Function to handle double-click event on words
-        // function handleWordSelection(event) {
-        //     const Word = event.target.textContent.trim();
 
-        //     if (Word) {
-        //         // Since getHoveredResult is async, use .then() to wait for the promise to resolve
-        //         getHoveredResult(Word)
-        //             .then((hoveredResult) => {
-
-
-        //                 showHoveredResult(event.clientX, event.clientY, hoveredResult);
-        //             })
-        //             .catch((error) => {
-        //                 console.error("Failed to get hovered result:", error);
-        //                 // Optionally, handle the error, e.g., by showing an error message to the user
-        //             });
-        //     }
-        // }
         async function getHoveredResult(word) {
             try {
                 const myHeaders = new Headers();
@@ -1144,7 +1205,7 @@
                 console.error(error);
             }
         }
- 
+
         function removeTooltip() {
             const tooltip = document.getElementById("tooltip");
             if (tooltip) {
@@ -1210,7 +1271,7 @@
 
 
             return;
-          
+
         }
 
         function removeTooltipOnClick(event) {
@@ -1342,22 +1403,21 @@
 
 
 
-    function preloadAudio(url) {
-        const audio = new Audio();
-        audio.preload = 'auto'; // Set preload to auto for caching
+        function preloadAudio(url) {
 
-        audio.addEventListener('loadeddata', () => {
-            console.log('Audio loaded successfully:', url);
-        });
+            const audio = new Audio();
+            audio.preload = 'auto'; // Set preload to auto for caching
 
-        audio.addEventListener('error', () => {
-            console.error('Error loading audio:', url);
-            // You can handle specific errors here (e.g., check for network errors)
-        });
+            audio.addEventListener('loadeddata', () => {
+            });
 
-        audio.src = url;
-        audio.load(); // Start loading the audio
-    }
+            audio.addEventListener('error', () => {
+                // You can handle specific errors here (e.g., check for network errors)
+            });
+
+            audio.src = url;
+            audio.load(); // Start loading the audio
+        }
 
     </script>
 

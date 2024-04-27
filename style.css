@@ -21,6 +21,7 @@ h1 {
     position: fixed;
     background: rgba(0, 0, 0, 0.3);
 }
+
 .contents {
     bottom: 0;
     width: 100%;
@@ -71,7 +72,7 @@ h1 {
 
 .close svg {
     width: 42px;
-        height: 42px;
+    height: 42px;
 }
 
 .close svg path {
@@ -119,34 +120,53 @@ h1 {
 .spanish-text span {
     display: block;
 }
-.text-sm{
+
+.text-sm {
     font-size: 14px;
 }
-.player-layout .text-sm{
+
+.player-layout .text-sm {
     font-size: 13px;
     /* text-align: center; */
 
 }
-.text-container .highlight{
+
+.text-container .highlight {
     background-color: #5755FE;
     padding: 2px 4px;
     color: white;
 }
-.text-container .saved{
+
+.text-container .saved {
     background-color: #FF6500;
     color: #000;
 }
-.text-container .highlight .original{
+
+.text-container .highlight .original {
     background: none;
 }
 
-@media only screen and (min-width:768px)
-{
-    body{
+.audio-wrapper {
+    position: relative;
+}
+
+.audio_overlay {
+    position: absolute;
+    top: 0;
+    left: 36px;
+    width: 74%;
+    height: 100%;
+    cursor: not-allowed;
+    /* To indicate that the controls are disabled */
+}
+
+@media only screen and (min-width:768px) {
+    body {
         width: 800px;
         margin: auto;
     }
-        .contents{
-            max-width: 800px;
-        }
+
+    .contents {
+        max-width: 800px;
+    }
 }
