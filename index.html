@@ -220,7 +220,7 @@
                 Font Size <i class="fas fa-minus"></i>
             </button>
         </div> -->
-        <div class="rewind-section">
+        <div class="rewind-section" id="rewind-section" >
             <div class="row">
                 <div class="col-md-6 row">
                     <div class="col-12 d-flex align-items-center flex-column player-layout">
@@ -560,8 +560,8 @@
         integrity="sha512-ykZ1QQr0Jy/4ZkvKuqWn4iF3lqPZyij9iRv6sGqLRdTPkY69YX6+7wvVGmsdBbiIfN/8OdsI7HABjvEok6ZopQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        // let audioResourceUrl = "https://voc-ai.vercel.app/jake";
-        let audioResourceUrl = "http://localhost/voc-chatgpt/jake";
+        let audioResourceUrl = "https://voc-ai.vercel.app/jake";
+        // let audioResourceUrl = "http://localhost/voc-chatgpt/jake";
         let foreignDir = "FR";
         let nativeDir = "EN";
         let currentAudioIndex = 1;
@@ -724,7 +724,13 @@
                 var windowHeight = $(window).height();
 
                 // Calculate the scroll position to center the element vertically
-                var newScrollTop = yPos - (windowHeight / 2) + (element.outerHeight() / 2) + 250;
+                var audioPlayerHeight = document.getElementById('rewind-section');
+                
+                // Get the bounding rectangle of the element
+                var audioPlayerHeight = audioPlayerHeight.getBoundingClientRect();
+                // console.log(audioPlayerHeight);
+
+                var newScrollTop = yPos - (windowHeight / 2) + (element.outerHeight() / 2) + audioPlayerHeight.height+20;
                 // currentAudioIndex++;
                 if (!isElementAtBottom('.highlight')) {
                     $('html, body').animate({
