@@ -243,7 +243,7 @@
                         </div>
                         <div class="audio-wrapper">
 
-                            <audio id="audio-player" controls="false" controlsList="nodownload noplaybackrate"></audio>
+                            <audio id="audio-player" autoplay controls="false" controlsList="nodownload noplaybackrate"></audio>
                             <div class="audio_overlay"></div>
                         </div>
                         <!-- <input type="text" name="" id="original_position" value=""> -->
@@ -698,6 +698,7 @@
             loadAudioPlayer();
             audioPlayer.addEventListener("ended", function () {
                 setTimeout(() => {
+                    localStorage.setItem("audioIndex")
                     loadPlayerSettings()
                     $(".original_para").removeClass("highlight");
                     $(".translated_para").removeClass("highlight");
