@@ -249,7 +249,7 @@
                         <!-- <input type="text" name="" id="original_position" value=""> -->
                         <div class="col-12 ms-4">
 
-                            <div class="progress">
+                            <div class="progress" id="progress-wrapper">
                                 <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;"
                                     aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
@@ -560,8 +560,8 @@
         integrity="sha512-ykZ1QQr0Jy/4ZkvKuqWn4iF3lqPZyij9iRv6sGqLRdTPkY69YX6+7wvVGmsdBbiIfN/8OdsI7HABjvEok6ZopQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        let audioResourceUrl = "https://voc-ai.vercel.app/jake";
-        // let audioResourceUrl = "http://localhost/voc-chatgpt/jake";
+        // let audioResourceUrl = "https://voc-ai.vercel.app/jake";
+        let audioResourceUrl = "http://localhost/voc-chatgpt/jake";
         let foreignDir = "FR";
         let nativeDir = "EN";
         let currentAudioIndex = 1;
@@ -578,6 +578,8 @@
         let totalAudioDuration = 0;
         let remainingAudioDuration = 0;
         let audioPlaying = false;
+        let progressBar = document.getElementById('progressBar');
+
         audioPlayer.src = audioResourceUrl + "/" + nativeDir + "/" + currentAudioIndex + ".wav"
         setInterval(() => {
 
@@ -586,16 +588,65 @@
                 let percentage = remainingAudioDuration / totalAudioDuration * 100
                 let width = parseFloat(100 - percentage)
                 $("#progressBar").css("width", width + "%")
-                console.log(percentage);
 
-                console.log(remainingAudioDuration);
                 // console.log('second');
             }
             else {
-                console.log('rest');
 
             }
         }, 1000);
+
+        // update progress
+        function updateProgress(event) {
+            const rect = document.getElementById("progress-wrapper").getBoundingClientRect();
+            const totalWidth = rect.width;
+
+            const offsetX = event.clientX - rect.left;
+            
+            const progress = Math.min(100, Math.max(0, (offsetX / totalWidth) * 100));
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', progress.toFixed(2));
+            let seconds=totalAudioDuration*progress/100;
+            
+            let calculatedPosition=0;
+            
+            for (var key in foreignDurInfo){
+                
+                calculatedPosition+=(foreignDurInfo[key]*defaultSettingsObj.foreign.voiceSpeed)+(nativeDurInfo[key]*defaultSettingsObj.native.voiceSpeed)+ (( defaultSettingsObj.phraseSpeed/1000)*2);
+                
+                if(calculatedPosition>seconds){
+                    
+                    let index=  parseInt(key);
+                    currentDir=foreignDir;
+                    currentAudioIndex= (index );
+                    audioFileIndex= (index - 1) * 2;
+                    
+                    remainingAudioDuration=totalAudioDuration-seconds;
+                    $(".original_para").removeClass("highlight");
+                    $(".original_para").eq([index - 1]).addClass("highlight")
+                   var $element = $(".original_para").eq(index - 1);
+
+                    // Scroll to the selected element
+                    $('html, body').animate({
+                        scrollTop: $element.offset().top+ $(".player-layout").height()-400
+                    }, 500);
+                    setTimeout(() => {
+                        audioPlayer.src=audioFiles[(index-1)*2]
+                        // loadPlayerSettings()
+                        audioPlayer.play()
+                        
+                    }, 1000);
+
+                    return false;
+
+                }
+                
+            }
+        }   
+
+        $("#progress-wrapper").click(function (event) {
+            updateProgress(event)
+        })
 
 
         function startProgress() {
@@ -607,8 +658,6 @@
             let width = 100 - percentage;
             // $("#progressBar").text(width+"%")
             $("#progressBar").css("width", width + "%");
-            console.log(remainingTime);
-            console.log(width);
 
         }
 
@@ -649,14 +698,10 @@
             loadAudioPlayer();
             audioPlayer.addEventListener("ended", function () {
                 setTimeout(() => {
-                    // Example usage:
-
-
-
-
                     loadPlayerSettings()
                     $(".original_para").removeClass("highlight");
                     $(".translated_para").removeClass("highlight");
+                    
                     if (currentDir == nativeDir) {
                         $(".translated_para").eq([currentAudioIndex - 1]).addClass("highlight")
                         audioPlayer.src = audioFiles[audioFileIndex];
@@ -879,7 +924,6 @@
                     unMuteAudio();
                 }
             }
-            // console.log(currentDir);
 
         }
         function muteAudio() {
@@ -1047,19 +1091,14 @@
             $(".original_para").css("font-size", defaultSettingsObj.foreign.textSize);
             $(".translated_para").css("font-size", defaultSettingsObj.native.textSize);
 
-            let totalNativeDuration = 0;
+            let totalDuration = 0;
             for (let key in nativeDurInfo) {
-                totalNativeDuration += (nativeDurInfo[key] * defaultSettingsObj.native.voiceSpeed) + (defaultSettingsObj.phraseSpeed / 1000);
+                if(nativeDurInfo[key]==null || foreignDurInfo[key]==null){
+                    return false;
+                }
+                totalDuration += (nativeDurInfo[key] * defaultSettingsObj.native.voiceSpeed) + ((defaultSettingsObj.phraseSpeed / 1000)*2)+ (foreignDurInfo[key] * defaultSettingsObj.foreign.voiceSpeed);
             }
-            totalNativeDuration -= (defaultSettingsObj.phraseSpeed / 1000)
-
-            let totalForeignDuration = 0;
-            for (let key in foreignDurInfo) {
-                totalForeignDuration += (foreignDurInfo[key] * defaultSettingsObj.foreign.voiceSpeed) + (defaultSettingsObj.phraseSpeed / 1000);
-            }
-            totalForeignDuration -= (defaultSettingsObj.phraseSpeed / 1000)
-
-            totalAudioDuration = parseInt(totalForeignDuration + totalNativeDuration)
+            totalAudioDuration= totalDuration
             remainingAudioDuration = totalAudioDuration;
         }
 
